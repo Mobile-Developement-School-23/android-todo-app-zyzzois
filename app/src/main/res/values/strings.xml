@@ -1,3 +1,18 @@
 <resources>
     <string name="app_name">ToDo</string>
+    <string name="list_item_text">Купить что-то</string>
+    <string name="more_information_text">more</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="add_new_item_button">add new item button</string>
+    <string name="main_screen_title">Мои дела</string>
+    <string name="completed_text">Выполнено — 5</string>
+    <string name="eye_button">eye_button</string>
+    <string name="cancel_button">cancel button</string>
+    <string name="save_button_text">СОХРАНИТЬ</string>
+    <string name="hint_text">Что надо сделать...</string>
+    <string name="importance_text">Важность</string>
+    <string name="hint_no">Нет</string>
+    <string name="do_before">Сделать до</string>
+    <string name="delete">Удалить</string>
 </resources>

@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:background="@color/back_color"
+    android:layout_height="match_parent"
+    tools:context=".DetailFragment">
+
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="48dp"
+        android:contentDescription="@string/cancel_button"
+        android:src="@drawable/ic_cancel"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/buttonSave"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="48dp"
+        android:layout_marginEnd="18dp"
+        android:fontFamily="@font/roboto_medium"
+        android:text="@string/save_button_text"
+        android:textColor="@color/blue"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardView2"
+        android:layout_marginTop="42dp"
+        android:layout_width="match_parent"
+        android:layout_height="112dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:elevation="10dp"
+        app:cardCornerRadius="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView2">
+
+        <EditText
+            android:id="@+id/edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:autofillHints=""
+            android:background="@null"
+            android:gravity="start"
+            android:hint="@string/hint_text"
+            android:inputType="text"
+            android:padding="16dp" />
+    </androidx.cardview.widget.CardView>
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="18dp"
+        android:layout_marginTop="42dp"
+        android:text="@string/importance_text"
+        android:textColor="@color/black"
+        android:textSize="18sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cardView2" />
+
+    <View
+        android:id="@+id/divider2"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginStart="18dp"
+        android:layout_marginEnd="18dp"
+        android:layout_marginTop="16dp"
+        android:background="?android:attr/listDivider"
+        app:layout_constraintTop_toBottomOf="@+id/textView3"
+        tools:layout_editor_absoluteX="1dp" />
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/hint_no"
+        android:textSize="16sp"
+        android:textColor="@color/medium_gray"
+        android:layout_marginTop="4dp"
+        app:layout_constraintStart_toStartOf="@+id/textView"
+        app:layout_constraintTop_toBottomOf="@+id/textView" />
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/do_before"
+        android:textSize="18sp"
+        android:layout_marginTop="27dp"
+        android:textColor="@color/black"
+        android:layout_marginStart="18dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/divider2" />
+
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/switch1"
+        android:layout_marginTop="18dp"
+        android:layout_marginEnd="18dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/divider2" />
+
+    <View
+        android:id="@+id/divider3"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginStart="18dp"
+        android:layout_marginEnd="18dp"
+        android:layout_marginTop="64dp"
+        android:background="?android:attr/listDivider"
+        app:layout_constraintTop_toTopOf="@+id/textView4"
+        tools:layout_editor_absoluteX="1dp" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/buttonDelete"
+        style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="12dp"
+        android:text="@string/delete"
+        android:layout_marginStart="18dp"
+        android:layout_marginEnd="18dp"
+        android:gravity=""
+        android:textColor="@color/medium_gray"
+        app:icon="@drawable/ic_delete"
+        app:iconGravity="start"
+        app:iconTint="@color/medium_gray"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/divider3" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

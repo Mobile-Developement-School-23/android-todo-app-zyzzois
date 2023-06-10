@@ -6,4 +6,16 @@
     </style>
 
     <style name="Theme.ToDo" parent="Base.Theme.ToDo" />
+
+    <style name="FloatingActionButtonStyle" parent="Widget.Design.FloatingActionButton">
+        <item name="shapeAppearanceOverlay">
+            @style/FabShapeStyle
+        </item>
+    </style>
+
+    <style name="FabShapeStyle" parent="ShapeAppearance.MaterialComponents.SmallComponent">
+        <item name="cornerSize">50%</item>
+        <item name="cornerFamily">rounded</item>
+    </style>
+
 </resources>
