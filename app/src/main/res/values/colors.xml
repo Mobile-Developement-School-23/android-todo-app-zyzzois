@@ -6,4 +6,8 @@
     <color name="medium_gray">#4D000000</color>
     <color name="blue">#007AFF</color>
     <color name="back_color">#F7F6F2</color>
+    <color name="red">#FF3B30</color>
+    <color name="switch_activated_back">#ADD1F6</color>
+    <color name="switch_activated_point">#007AFF</color>
+    <color name="green">#34C759</color>
 </resources>

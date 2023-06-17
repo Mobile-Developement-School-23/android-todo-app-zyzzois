@@ -6,13 +6,23 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="add_new_item_button">add new item button</string>
     <string name="main_screen_title">Мои дела</string>
-    <string name="completed_text">Выполнено — 5</string>
+    <string name="completed_text">Выполнено — 0</string>
     <string name="eye_button">eye_button</string>
     <string name="cancel_button">cancel button</string>
     <string name="save_button_text">СОХРАНИТЬ</string>
-    <string name="hint_text">Что надо сделать...</string>
+    <string name="hint_text">Что надо сделать…</string>
     <string name="importance_text">Важность</string>
     <string name="hint_no">Нет</string>
     <string name="do_before">Сделать до</string>
     <string name="delete">Удалить</string>
+    <string name="no_importance">Нет</string>
+    <string name="low_importance">Низкий</string>
+    <string name="high_importance"><font color="#FF3B30">!! Высокий</font></string>
+    <string name="default_date_text">2 июня 2021</string>
+    <string name="til_error">Поле текста не может быть пустым!</string>
+    <string name="medium_priority">Обычная</string>
+    <string name="low_priority">Низкая</string>
+    <string name="high_priority"><font color="#FF3B30">!! Высокая</font></string>
+    <string name="todo">Добавьте ToDo по кнопке ниже :)</string>
+    <string name="icon">icon</string>
 </resources>
