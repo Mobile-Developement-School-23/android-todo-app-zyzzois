@@ -148,7 +148,7 @@ class DetailFragment : Fragment() {
         }
 
         switch1.setOnClickListener {
-            switch1.setOnCheckedChangeListener { _, isChecked ->
+            if (switch1.isChecked) {
                 val picker = MaterialDatePicker.Builder.datePicker()
                     .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
                     .build()
@@ -157,26 +157,35 @@ class DetailFragment : Fragment() {
                     tvDate.text = dateFromLong(it).toStringDate()
                     tempValueForDeadline = it
                 }
-
-                if (isChecked)
-                    picker.show(requireActivity().supportFragmentManager, PICKER_TAG)
-                else {
-                    tvDate.text = ""
-                    tvDate.visibility = View.INVISIBLE
+                picker.addOnCancelListener {
+                    switch1.isChecked = false
+                    tempValueForDeadline = TodoItemEntity.UNDEFINED_DATE
                 }
+                picker.addOnNegativeButtonClickListener {
+                    switch1.isChecked = false
+                    tempValueForDeadline = TodoItemEntity.UNDEFINED_DATE
+                }
+                picker.show(requireActivity().supportFragmentManager, PICKER_TAG)
+
+            } else {
+                tempValueForDeadline = TodoItemEntity.UNDEFINED_DATE
+                tvDate.visibility = View.INVISIBLE
             }
+
         }
 
         buttonSave.setOnClickListener {
             viewModel.editToDoItem(
-                editText.text?.toString(),
-                Converter.convertStringToImportance(tvImportanceState.text.toString()),
-                deadline = 1L
+                text = editText.text?.toString(),
+                importance = Converter.convertStringToImportance(tvImportanceState.text.toString()),
+                deadline = tempValueForDeadline
             )
-            if (viewModel.errorInputText.value == false)
+
+            if (viewModel.errorInputText.value == false) {
                 tvDate.visibility = View.INVISIBLE
                 findNavController().popBackStack()
             }
+        }
 
         buttonDelete.setOnClickListener {
             viewModel.deleteToDoItem(toDoItemEntityId)
@@ -186,7 +195,6 @@ class DetailFragment : Fragment() {
     }
 
     private fun launchAddMode() = with(binding) {
-
         switch1.setOnCheckedChangeListener { _, isChecked ->
             val picker = MaterialDatePicker.Builder.datePicker()
                 .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
