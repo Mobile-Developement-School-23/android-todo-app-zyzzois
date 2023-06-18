@@ -39,6 +39,14 @@ class ListViewModel @Inject constructor(
         }
     }
 
+    fun renameToDoItem(item: TodoItemEntity, newName: String) {
+        viewModelScope.launch {
+            val toDoItemEntity = item.copy(text = newName)
+            editItemUseCase(toDoItemEntity)
+            updateList()
+        }
+    }
+
 
     fun deleteToDoItem(todoItemId: Int) {
         viewModelScope.launch {

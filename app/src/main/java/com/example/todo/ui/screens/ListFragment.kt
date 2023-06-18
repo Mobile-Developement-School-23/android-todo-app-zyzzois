@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -21,6 +22,7 @@ import com.example.todo.ui.viewmodels.ViewModelFactory
 import com.example.todo.util.Constants.BINDING_NULL_EXCEPTION_MESSAGE
 import com.example.todo.util.Constants.COMPLETED
 import com.example.todo.util.Constants.MODE_EDIT
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator
 import javax.inject.Inject
 
@@ -45,6 +47,9 @@ class ListFragment : Fragment() {
     private val binding: FragmentListBinding
         get() = _binding ?: throw RuntimeException(BINDING_NULL_EXCEPTION_MESSAGE)
 
+    private lateinit var bottomSheetBehaviorActions: BottomSheetBehavior<LinearLayout>
+    private lateinit var bottomSheetBehaviorRename: BottomSheetBehavior<LinearLayout>
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         component.inject(this)
@@ -64,24 +69,58 @@ class ListFragment : Fragment() {
         setupRecyclerView()
         viewModel.toDoList.observe(viewLifecycleOwner) {
             viewModel.updateCompletedNumber()
-            if (it != null) {
-                if (it.isEmpty()) {
-                    binding.emptyTextView.visibility = View.VISIBLE
-                } else {
-                    binding.emptyTextView.visibility = View.INVISIBLE
-                    listAdapter.submitList(it)
-                }
-            }
+            listAdapter.submitList(it)
         }
-
+        setupBottomSheet()
         setupClickListeners()
         setupSwipeListener(binding.rcView)
     }
 
-    private fun setupItemLongClickListener() {
+    private fun setupBottomSheet() {
+        bottomSheetBehaviorActions = BottomSheetBehavior.from(binding.bottomMenuActions.bottomActions)
+        bottomSheetBehaviorRename = BottomSheetBehavior.from(binding.bottomMenuRename.bottomMenu)
+        bottomSheetBehaviorActions.peekHeight = 0
+        bottomSheetBehaviorRename.peekHeight = 0
+        bottomSheetBehaviorActions.state = BottomSheetBehavior.STATE_COLLAPSED
+        bottomSheetBehaviorRename.state = BottomSheetBehavior.STATE_COLLAPSED
+    }
+
+    private fun setupItemLongClickListener() = with(binding) {
         listAdapter.onItemLongClickListener = {
-            viewModel.editToDoItem(it, completed = !it.completed)
-            viewModel.updateCompletedNumber()
+            buttonAddItem.visibility = View.GONE
+            val selectedItem = it
+
+            bottomSheetBehaviorActions.state = BottomSheetBehavior.STATE_EXPANDED
+            bottomSheetBackGround.visibility = View.VISIBLE
+
+            bottomSheetBackGround.setOnClickListener {
+                hideBottomSheetMenus()
+            }
+            bottomMenuRename.buttonDeleteOnBottomMenu.setOnClickListener {
+                hideBottomSheetMenus()
+            }
+            bottomMenuActions.buttonDelete.setOnClickListener {
+                hideBottomSheetMenus()
+            }
+
+            bottomMenuActions.buttonRename.setOnClickListener {
+                bottomSheetBackGround.visibility = View.GONE
+                bottomSheetBehaviorActions.state = BottomSheetBehavior.STATE_COLLAPSED
+                bottomSheetBehaviorRename.state = BottomSheetBehavior.STATE_EXPANDED
+                bottomSheetBackGround.visibility = View.VISIBLE
+                bottomMenuRename.inputFileName.setText(selectedItem.text)
+                if (bottomMenuRename.inputFileName.text != null) {
+                    bottomMenuRename.buttonSaveOnBottomMenu.setOnClickListener {
+                        val newName = bottomMenuRename.inputFileName.text.toString()
+                        viewModel.renameToDoItem(selectedItem, newName)
+                        hideBottomSheetMenus()
+                    }
+                }
+            }
+            bottomMenuActions.buttonDelete.setOnClickListener {
+                hideBottomSheetMenus()
+            }
+
         }
     }
 
@@ -102,6 +141,13 @@ class ListFragment : Fragment() {
         }
         setupItemClickListener()
         setupItemLongClickListener()
+    }
+
+    private fun hideBottomSheetMenus() = with(binding) {
+        buttonAddItem.visibility = View.VISIBLE
+        bottomSheetBehaviorActions.state = BottomSheetBehavior.STATE_COLLAPSED
+        bottomSheetBehaviorRename.state = BottomSheetBehavior.STATE_COLLAPSED
+        bottomSheetBackGround.visibility = View.GONE
     }
 
     private fun setupClickListeners() = with(binding) {
@@ -141,28 +187,50 @@ class ListFragment : Fragment() {
                 val position = viewHolder.layoutPosition
                 val item = listAdapter.currentList[position]
                 when (direction) {
-                    ItemTouchHelper.LEFT -> viewModel.deleteToDoItem(item.id)
+                    ItemTouchHelper.LEFT -> {
+                        viewModel.deleteToDoItem(item.id)
+                        viewModel.updateList()
+                    }
                     ItemTouchHelper.RIGHT -> viewModel.editToDoItem(item, completed = !item.completed)
                 }
-
                 viewModel.updateList()
             }
 
             override fun onChildDraw(
-                c: Canvas, recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder,
-                dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean
+                c: Canvas,
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                dX: Float,
+                dY: Float,
+                actionState: Int,
+                isCurrentlyActive: Boolean
             ) {
-                RecyclerViewSwipeDecorator.Builder(c, recyclerView, viewHolder, dX, dY, actionState,
+                RecyclerViewSwipeDecorator.Builder(
+                    c,
+                    recyclerView,
+                    viewHolder,
+                    dX,
+                    dY,
+                    actionState,
                     isCurrentlyActive
                 )
                     .addSwipeRightBackgroundColor(ContextCompat.getColor(requireContext(), R.color.green))
                     .addSwipeRightActionIcon(R.drawable.ic_checked)
                     .addSwipeLeftBackgroundColor(ContextCompat.getColor(requireContext(), R.color.red))
                     .addSwipeLeftActionIcon(R.drawable.ic_small_delete)
+                    .setSwipeLeftLabelColor(ContextCompat.getColor(requireContext(), R.color.white))
                     .create()
                     .decorate()
 
-                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+                super.onChildDraw(
+                    c,
+                    recyclerView,
+                    viewHolder,
+                    dX,
+                    dY,
+                    actionState,
+                    isCurrentlyActive
+                )
             }
         }
         val itemTouchHelper = ItemTouchHelper(callback)

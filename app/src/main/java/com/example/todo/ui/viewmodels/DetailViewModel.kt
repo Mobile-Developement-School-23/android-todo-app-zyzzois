@@ -1,6 +1,5 @@
 package com.example.todo.ui.viewmodels
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -37,7 +36,6 @@ class DetailViewModel @Inject constructor(
     }
 
     fun addToDoItem(text: String?, importance: String, deadline: Long) {
-        Log.d("MYTAG", importance)
         val content = parseName(text)
         val fieldsValid = validateInput(content)
         if (fieldsValid) {
@@ -93,6 +91,8 @@ class DetailViewModel @Inject constructor(
     fun resetErrorInputText() {
         _errorInputText.value = false
     }
+
+
 
 
     private fun convertStringToImportance(stringImportance: String): Importance {
