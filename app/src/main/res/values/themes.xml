@@ -58,4 +58,8 @@
         <item name="boxCornerRadiusTopStart">16dp</item>
     </style>
 
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light">
+
+    </style>
+
 </resources>
