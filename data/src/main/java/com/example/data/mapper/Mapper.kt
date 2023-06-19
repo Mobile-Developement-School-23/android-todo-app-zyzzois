@@ -28,11 +28,16 @@ class Mapper @Inject constructor() {
 
     private fun convertStringToImportance(stringImportance: String): Importance {
         return when (stringImportance) {
-            "Low" -> Importance.Low
-            "Normal" -> Importance.Normal
-            "Urgent" -> Importance.Urgent
-            else -> {Importance.Normal}
+            LOW -> Importance.Low
+            NORMAL -> Importance.Normal
+            URGENT -> Importance.Urgent
+            else -> Importance.Normal
         }
     }
 
+    companion object {
+        private const val LOW = "Low"
+        private const val NORMAL = "Normal"
+        private const val URGENT = "Urgent"
+    }
 }

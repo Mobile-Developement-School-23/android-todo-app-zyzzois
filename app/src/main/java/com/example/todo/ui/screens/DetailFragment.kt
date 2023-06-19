@@ -124,7 +124,6 @@ class DetailFragment : Fragment() {
 
         viewModel.getToDoItem(toDoItemEntityId)
         viewModel.itemEntity.observe(viewLifecycleOwner) {
-            showToast(it.deadline.toString())
             if (it.deadline != TodoItemEntity.UNDEFINED_DATE) {
                 switch1.isChecked = true
                 tvDate.visibility = View.VISIBLE
