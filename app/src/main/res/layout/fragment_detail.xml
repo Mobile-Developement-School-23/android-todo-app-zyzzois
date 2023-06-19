@@ -3,7 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:background="@color/back_color"
     android:layout_height="match_parent"
     tools:context=".ui.screens.DetailFragment">
 
@@ -89,7 +88,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/importance_text"
-            android:textColor="@color/black"
             android:textSize="18sp" />
 
         <TextView
@@ -128,7 +126,6 @@
         android:text="@string/do_before"
         android:textSize="18sp"
         android:layout_marginTop="16dp"
-        android:textColor="@color/black"
         android:layout_marginStart="18dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/divider" />
