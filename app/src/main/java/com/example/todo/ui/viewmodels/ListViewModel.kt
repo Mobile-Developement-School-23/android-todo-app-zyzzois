@@ -47,7 +47,6 @@ class ListViewModel @Inject constructor(
         }
     }
 
-
     fun deleteToDoItem(todoItemId: Int) {
         viewModelScope.launch {
             deleteItemUseCase(todoItemId)

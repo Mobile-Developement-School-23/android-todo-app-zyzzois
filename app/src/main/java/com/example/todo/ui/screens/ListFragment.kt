@@ -161,11 +161,10 @@ class ListFragment : Fragment() {
         }
 
         buttonVisibility.setOnClickListener {
-            if (isIcon1Visible) {
+            if (isIcon1Visible)
                 buttonVisibility.setImageResource(R.drawable.ic_invisible)
-            } else {
+            else
                 buttonVisibility.setImageResource(R.drawable.ic_eye)
-            }
             isIcon1Visible = !isIcon1Visible
         }
     }

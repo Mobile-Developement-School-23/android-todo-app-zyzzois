@@ -10,6 +10,7 @@ import com.example.domain.usecase.AddNewItemUseCase
 import com.example.domain.usecase.DeleteItemUseCase
 import com.example.domain.usecase.EditItemUseCase
 import com.example.domain.usecase.GetItemByIdUseCase
+import com.example.todo.util.Converter.convertStringToImportance
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -91,17 +92,4 @@ class DetailViewModel @Inject constructor(
     fun resetErrorInputText() {
         _errorInputText.value = false
     }
-
-
-
-
-    private fun convertStringToImportance(stringImportance: String): Importance {
-        return when (stringImportance) {
-            "Низкий" -> Importance.Low
-            "Нет" -> Importance.Normal
-            else -> Importance.Urgent
-        }
-    }
-
-
 }
