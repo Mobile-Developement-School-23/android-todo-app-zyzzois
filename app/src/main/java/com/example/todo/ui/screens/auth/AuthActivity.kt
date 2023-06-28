@@ -19,6 +19,10 @@ import com.yandex.authsdk.YandexAuthLoginOptions
 import com.yandex.authsdk.YandexAuthOptions
 import com.yandex.authsdk.YandexAuthSdk
 import com.yandex.authsdk.YandexAuthToken
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Runnable
+import kotlinx.coroutines.withContext
+import kotlin.concurrent.thread
 
 
 class AuthActivity : AppCompatActivity() {
@@ -51,7 +55,7 @@ class AuthActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        checkAuthState()
+        //checkAuthState()
         setupAuthResultObserver()
         setupButtons()
     }
@@ -67,11 +71,13 @@ class AuthActivity : AppCompatActivity() {
         launcher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             try {
                 val yandexAuthToken: YandexAuthToken? = sdk.extractToken(it.resultCode, it.data)
+
                 if (yandexAuthToken != null) {
                     showToast(AUTH_SUCCESS)
-                    authStateEditor.putBoolean(AUTH_STATE, true)
-                    authStateEditor.apply()
-                    Log.d("zyzz", yandexAuthToken.toString())
+                    //authStateEditor.putBoolean(AUTH_STATE, true)
+                    //authStateEditor.apply()
+
+                    Log.d("zyzz", yandexAuthToken.value)
                     startActivity(MainActivity.newIntentOpenMainActivity(this))
                 }
             } catch (e: YandexAuthException) {

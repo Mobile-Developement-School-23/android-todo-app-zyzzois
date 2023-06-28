@@ -46,8 +46,8 @@ class ListFragment : Fragment() {
     private val binding: FragmentListBinding
         get() = _binding ?: throw RuntimeException(BINDING_NULL_EXCEPTION_MESSAGE)
 
-    private lateinit var bottomSheetBehaviorActions: BottomSheetBehavior<LinearLayout>
-    private lateinit var bottomSheetBehaviorRename: BottomSheetBehavior<LinearLayout>
+    private lateinit var bottomActions: BottomSheetBehavior<LinearLayout>
+    private lateinit var bottomRename: BottomSheetBehavior<LinearLayout>
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -81,12 +81,12 @@ class ListFragment : Fragment() {
     }
 
     private fun setupBottomSheet()  {
-        bottomSheetBehaviorActions = BottomSheetBehavior.from(binding.bottomMenuActions.bottomActions)
-        bottomSheetBehaviorRename = BottomSheetBehavior.from(binding.bottomMenuRename.bottomMenu)
-        bottomSheetBehaviorActions.peekHeight = 0
-        bottomSheetBehaviorRename.peekHeight = 0
-        bottomSheetBehaviorActions.state = BottomSheetBehavior.STATE_COLLAPSED
-        bottomSheetBehaviorRename.state = BottomSheetBehavior.STATE_COLLAPSED
+        bottomActions = BottomSheetBehavior.from(binding.bottomMenuActions.bottomActions)
+        bottomRename = BottomSheetBehavior.from(binding.bottomMenuRename.bottomMenu)
+        bottomActions.peekHeight = 0
+        bottomRename.peekHeight = 0
+        bottomActions.state = BottomSheetBehavior.STATE_COLLAPSED
+        bottomRename.state = BottomSheetBehavior.STATE_COLLAPSED
     }
 
     private fun setupItemLongClickListener() = with(binding) {
@@ -94,7 +94,7 @@ class ListFragment : Fragment() {
             buttonAddItem.visibility = View.GONE
             val selectedItem = it
 
-            bottomSheetBehaviorActions.state = BottomSheetBehavior.STATE_EXPANDED
+            bottomActions.state = BottomSheetBehavior.STATE_EXPANDED
             bottomSheetBackGround.visibility = View.VISIBLE
 
             bottomSheetBackGround.setOnClickListener {
@@ -109,8 +109,8 @@ class ListFragment : Fragment() {
 
             bottomMenuActions.buttonRename.setOnClickListener {
                 bottomSheetBackGround.visibility = View.GONE
-                bottomSheetBehaviorActions.state = BottomSheetBehavior.STATE_COLLAPSED
-                bottomSheetBehaviorRename.state = BottomSheetBehavior.STATE_EXPANDED
+                bottomActions.state = BottomSheetBehavior.STATE_COLLAPSED
+                bottomRename.state = BottomSheetBehavior.STATE_EXPANDED
                 bottomSheetBackGround.visibility = View.VISIBLE
                 bottomMenuRename.inputFileName.setText(selectedItem.text)
                 if (bottomMenuRename.inputFileName.text != null) {
@@ -150,8 +150,8 @@ class ListFragment : Fragment() {
 
     private fun hideBottomSheetMenus() = with(binding) {
         buttonAddItem.visibility = View.VISIBLE
-        bottomSheetBehaviorActions.state = BottomSheetBehavior.STATE_COLLAPSED
-        bottomSheetBehaviorRename.state = BottomSheetBehavior.STATE_COLLAPSED
+        bottomActions.state = BottomSheetBehavior.STATE_COLLAPSED
+        bottomRename.state = BottomSheetBehavior.STATE_COLLAPSED
         bottomSheetBackGround.visibility = View.GONE
     }
 

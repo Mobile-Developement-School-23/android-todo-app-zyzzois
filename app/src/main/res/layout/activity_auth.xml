@@ -12,19 +12,32 @@
         android:layout_marginStart="22dp"
         android:layout_marginEnd="22dp"
         android:layout_marginBottom="18dp"
-        android:text="Войти с Яндекс ID"
+        android:text="@string/id"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/buttonNext"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="дальше"
+        android:layout_width="0dp"
+        android:layout_height="56dp"
+        android:text="@string/skip_auth"
+        android:layout_marginStart="22dp"
+        android:layout_marginEnd="22dp"
         app:layout_constraintBottom_toTopOf="@+id/buttonAuthViaYandex"
         app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="12dp"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_marginTop="48dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:srcCompat="@tools:sample/avatars"
+        android:contentDescription="@string/avatar" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

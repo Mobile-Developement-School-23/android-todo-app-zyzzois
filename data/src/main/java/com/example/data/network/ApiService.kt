@@ -12,11 +12,11 @@ import java.util.UUID
 
 interface ApiService {
 
-    @Headers("Authorization: Bearer grassed")
+    @Headers("Authorization: OAuth $token")
     @GET("list")
     suspend fun getToDoList(): ToDoListDto
 
-    @Headers("X-Last-Known-Revision: 0", "Authorization: Bearer grassed")
+    @Headers("X-Last-Known-Revision: 0", "Authorization: OAuth $token")
     @POST("list")
     suspend fun uploadToDoElement(@Body toDoItemDto: ToDoItemDto)
 
@@ -26,6 +26,6 @@ interface ApiService {
 
 
     companion object {
-        const val token = "y0_AgAAAABEww8dAAoW1AAAAADmPgw8qnY-Ic0-RbqS2v0vK-8qtP2eaFM"
+        private const val token = "y0_AgAAAABEww8dAAoW1AAAAADmPgw8qnY-Ic0-RbqS2v0vK-8qtP2eaFM"
     }
 }
