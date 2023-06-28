@@ -1,4 +1,4 @@
-package com.example.todo.ui.viewmodels
+package com.example.todo.ui.screens.detail
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -10,7 +10,7 @@ import com.example.domain.usecase.AddNewItemUseCase
 import com.example.domain.usecase.DeleteItemUseCase
 import com.example.domain.usecase.EditItemUseCase
 import com.example.domain.usecase.GetItemByIdUseCase
-import com.example.todo.util.Converter.convertStringToImportance
+import com.example.todo.ui.util.Converter.convertStringToImportance
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

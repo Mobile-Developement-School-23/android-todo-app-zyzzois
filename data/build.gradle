@@ -42,7 +42,7 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
 
     // Room
-    def roomVersion = "2.5.1"
+    def roomVersion = "2.5.2"
     implementation "androidx.room:room-runtime:$roomVersion"
     implementation "androidx.room:room-ktx:$roomVersion"
     kapt "androidx.room:room-compiler:$roomVersion"
@@ -55,10 +55,21 @@ dependencies {
     // ViewModelScope
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1"
 
+    // Retrofit
+    def retrofitVersion = "2.9.0"
+    implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofitVersion"
+    api 'com.squareup.okhttp3:okhttp:4.9.3'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.9.3'
+
+
     // Dagger 2
     def dagger_version = "2.44.2"
     implementation "com.google.dagger:dagger:$dagger_version"
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
     kapt "org.jetbrains.kotlinx:kotlinx-metadata-jvm:0.5.0"
+
+    // Yandex Auth
+    implementation "com.yandex.android:authsdk:2.5.1"
 
 }

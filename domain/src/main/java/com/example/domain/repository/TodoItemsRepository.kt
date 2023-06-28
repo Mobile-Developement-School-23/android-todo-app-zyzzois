@@ -8,4 +8,6 @@ interface TodoItemsRepository {
     suspend fun editItem(item: TodoItemEntity)
     suspend fun deleteItem(itemId: Int)
     suspend fun getItemsList(): List<TodoItemEntity>
+    suspend fun loadData()
+    suspend fun uploadToDoToServer()
 }

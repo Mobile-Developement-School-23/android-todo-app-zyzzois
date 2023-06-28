@@ -1,8 +1,8 @@
 package com.example.todo.di
 
 import android.app.Application
-import com.example.todo.ui.screens.DetailFragment
-import com.example.todo.ui.screens.ListFragment
+import com.example.todo.ui.screens.detail.DetailFragment
+import com.example.todo.ui.screens.main.ListFragment
 import dagger.BindsInstance
 import dagger.Component
 

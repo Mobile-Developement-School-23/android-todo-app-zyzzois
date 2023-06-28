@@ -1,4 +1,4 @@
-package com.example.todo.ui.viewmodels
+package com.example.todo.ui.screens.main
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -8,14 +8,25 @@ import com.example.domain.entity.TodoItemEntity
 import com.example.domain.usecase.DeleteItemUseCase
 import com.example.domain.usecase.EditItemUseCase
 import com.example.domain.usecase.GetItemsListUseCase
+import com.example.domain.usecase.LoadDataUseCase
+import com.example.domain.usecase.UploadToDoToServerUseCase
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class ListViewModel @Inject constructor(
     private val getToDoListUseCase: GetItemsListUseCase,
     private val deleteItemUseCase: DeleteItemUseCase,
-    private val editItemUseCase: EditItemUseCase
+    private val editItemUseCase: EditItemUseCase,
+    private val loadDataUseCase: LoadDataUseCase,
+    private val uploadToDoToServerUseCase: UploadToDoToServerUseCase
 ): ViewModel() {
+
+    fun loadData() {
+        viewModelScope.launch {
+            //uploadToDoToServerUseCase()
+            loadDataUseCase()
+        }
+    }
 
     private val _toDoList = MutableLiveData<List<TodoItemEntity>?>()
     val toDoList: LiveData<List<TodoItemEntity>?>

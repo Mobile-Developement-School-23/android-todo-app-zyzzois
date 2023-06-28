@@ -16,7 +16,7 @@ android {
         targetSdk 33
         versionCode 1
         versionName "1.0"
-
+        manifestPlaceholders = [YANDEX_CLIENT_ID:"72f7e46d0dbc4bb5840f682a93bb6051"]
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -82,4 +82,14 @@ dependencies {
     // SwipeRefreshLayout
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
     implementation 'it.xabaras.android:recyclerview-swipedecorator:1.4'
+
+    // Yandex Auth
+    implementation "com.yandex.android:authsdk:2.5.1"
+
+    // Retrofit
+    def retrofitVersion = "2.9.0"
+    implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofitVersion"
+    api 'com.squareup.okhttp3:okhttp:4.9.3'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.9.3'
 }

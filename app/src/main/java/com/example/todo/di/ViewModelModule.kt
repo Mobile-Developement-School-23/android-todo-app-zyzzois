@@ -1,8 +1,8 @@
 package com.example.todo.di
 
 import androidx.lifecycle.ViewModel
-import com.example.todo.ui.viewmodels.DetailViewModel
-import com.example.todo.ui.viewmodels.ListViewModel
+import com.example.todo.ui.screens.detail.DetailViewModel
+import com.example.todo.ui.screens.main.ListViewModel
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap

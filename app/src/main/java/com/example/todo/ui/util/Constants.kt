@@ -1,4 +1,4 @@
-package com.example.todo.util
+package com.example.todo.ui.util
 
 import com.example.domain.entity.Importance
 
@@ -13,6 +13,10 @@ object Constants {
     const val UNKNOWN_SCREEN_MODE = "Unknown screen mode"
     const val TODO_DELETED = "Запись удалена"
     const val COMPLETED = "Выполнено - %d"
+    const val AUTH_TABLE_NAME = "auth"
+    const val AUTH_STATE = "auth state"
+    const val AUTH_SUCCESS = "Вы авторизованы"
+    const val AUTH_FAILED = "Вы не авторизованы"
 }
 
 object Converter {

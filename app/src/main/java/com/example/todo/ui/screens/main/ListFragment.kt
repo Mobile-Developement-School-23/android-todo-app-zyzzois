@@ -1,4 +1,4 @@
-package com.example.todo.ui.screens
+package com.example.todo.ui.screens.main
 
 import android.content.Context
 import android.graphics.Canvas
@@ -16,15 +16,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.todo.R
 import com.example.todo.app.ToDoApp
 import com.example.todo.databinding.FragmentListBinding
-import com.example.todo.ui.recycler.ToDoListAdapter
-import com.example.todo.ui.viewmodels.ListViewModel
-import com.example.todo.ui.viewmodels.ViewModelFactory
-import com.example.todo.util.Constants.BINDING_NULL_EXCEPTION_MESSAGE
-import com.example.todo.util.Constants.COMPLETED
-import com.example.todo.util.Constants.MODE_EDIT
+import com.example.todo.ui.screens.main.recycler.ToDoListAdapter
+import com.example.todo.ui.util.Constants.BINDING_NULL_EXCEPTION_MESSAGE
+import com.example.todo.ui.util.Constants.COMPLETED
+import com.example.todo.ui.util.Constants.MODE_EDIT
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator
 import javax.inject.Inject
+
 
 class ListFragment : Fragment() {
 
@@ -65,18 +64,23 @@ class ListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.updateList()
+        observeViewModel()
         setupRecyclerView()
-        viewModel.toDoList.observe(viewLifecycleOwner) {
-            viewModel.updateCompletedNumber()
-            listAdapter.submitList(it)
-        }
         setupBottomSheet()
         setupClickListeners()
         setupSwipeListener(binding.rcView)
+
     }
 
-    private fun setupBottomSheet() {
+    private fun observeViewModel() = with(viewModel) {
+        updateList()
+        toDoList.observe(viewLifecycleOwner) {
+            updateCompletedNumber()
+            listAdapter.submitList(it)
+        }
+    }
+
+    private fun setupBottomSheet()  {
         bottomSheetBehaviorActions = BottomSheetBehavior.from(binding.bottomMenuActions.bottomActions)
         bottomSheetBehaviorRename = BottomSheetBehavior.from(binding.bottomMenuRename.bottomMenu)
         bottomSheetBehaviorActions.peekHeight = 0
@@ -126,6 +130,7 @@ class ListFragment : Fragment() {
 
     private fun setupItemClickListener() {
         listAdapter.onItemClickListener = {
+            viewModel.loadData()
             findNavController().navigate(
                 ListFragmentDirections.actionListFragmentToDetailFragment()
                     .setTodoItemId(it.id)
