@@ -12,6 +12,8 @@ import com.example.data.core.preferences.RevisionPreferenceImpl
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 
 @Module
 interface DataModule {
@@ -41,6 +43,6 @@ interface DataModule {
             return ApiFactory.apiService
         }
 
-    }
 
+    }
 }

@@ -10,7 +10,6 @@ import com.example.domain.usecase.DeleteItemUseCase
 import com.example.domain.usecase.EditItemUseCase
 import com.example.domain.usecase.GetItemsListUseCase
 import com.example.domain.usecase.LoadDataUseCase
-import com.example.domain.usecase.UploadToDoToServerUseCase
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -21,26 +20,27 @@ class ListViewModel @Inject constructor(
     private val loadDataUseCase: LoadDataUseCase,
 ): ViewModel() {
 
+    private val _requestResult = MutableLiveData<Result?>()
+    val requestResult: LiveData<Result?>
+        get() = _requestResult
+
     init {
         viewModelScope.launch {
-            loadDataUseCase()
+            _requestResult.value = loadDataUseCase()
         }
     }
 
-//    fun loadData() {
-//        viewModelScope.launch {
-//            //uploadToDoToServerUseCase()
-//            loadDataUseCase()
-//        }
-//    }
+    fun loadData() {
+        viewModelScope.launch {
+            _requestResult.value = loadDataUseCase()
+        }
+    }
 
     private val _toDoList = MutableLiveData<List<TodoItemEntity>?>()
     val toDoList: LiveData<List<TodoItemEntity>?>
         get() = _toDoList
 
-    private val _requestResult = MutableLiveData<Result?>()
-    val requestResult: MutableLiveData<Result?>
-        get() = _requestResult
+
 
     private val _shouldShowError = MutableLiveData<Boolean>()
     val shouldShowError: MutableLiveData<Boolean>

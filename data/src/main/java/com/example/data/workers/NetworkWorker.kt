@@ -8,6 +8,7 @@ import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkerParameters
 import com.example.data.core.preferences.RevisionPreference
 import com.example.data.database.ToDoDao
+import com.example.data.mapper.DtoDbMapper
 import com.example.data.mapper.Mapper
 import com.example.data.network.ApiService
 import com.example.data.network.RequestResult
@@ -20,7 +21,7 @@ class NetworkWorker (
     context: Context,
     workerParameters: WorkerParameters,
     private val toDoDao: ToDoDao,
-    private val mapper: Mapper,
+    private val mapper: DtoDbMapper,
     private val apiService: ApiService,
     private val revisionPreference: RevisionPreference
 ): CoroutineWorker(context, workerParameters) {
@@ -36,6 +37,7 @@ class NetworkWorker (
 //        } catch (e: Exception) {
 //            e.stackTrace
 //        }
+        // some code
         return Result.success()
     }
 
@@ -45,7 +47,7 @@ class NetworkWorker (
 
     class Factory @Inject constructor(
         private val toDoDao: ToDoDao,
-        private val mapper: Mapper,
+        private val mapper: DtoDbMapper,
         private val apiService: ApiService,
         private val revisionPreference: RevisionPreference
     ): ChildWorkerFactory {

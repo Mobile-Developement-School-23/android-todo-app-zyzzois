@@ -34,4 +34,8 @@
     <string name="skip_auth">Продолжить без авторизации</string>
     <string name="avatar">avatar</string>
     <string name="auth_token_table_name">auth_token_table_name</string>
+    <string name="connection_error_title">упс… похоже у тебя беда с интернетом</string>
+    <string name="ignore">игнорировать</string>
+    <string name="show_cashed_todos_text">У меня есть закэшированные ToDo, но они могут быть неактуальными</string>
+    <string name="connection_error_message">я смогу синхронизировать твои заметки как только ты вновь подключишься к интернету</string>
 </resources>

@@ -2,6 +2,7 @@ package com.example.todo.ui.screens.main
 
 import android.content.Context
 import android.graphics.Canvas
+import android.net.ConnectivityManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -13,6 +14,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
+import com.example.domain.entity.remote.Result
 import com.example.todo.R
 import com.example.todo.app.ToDoApp
 import com.example.todo.databinding.FragmentListBinding
@@ -21,9 +23,10 @@ import com.example.todo.ui.util.Constants.BINDING_NULL_EXCEPTION_MESSAGE
 import com.example.todo.ui.util.Constants.COMPLETED
 import com.example.todo.ui.util.Constants.MODE_EDIT
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator
 import javax.inject.Inject
-
 
 class ListFragment : Fragment() {
 
@@ -74,7 +77,7 @@ class ListFragment : Fragment() {
 
     private fun setupSwipeToRefresh() = with(binding) {
         swipeRefreshLayout.setOnRefreshListener {
-            viewModel.syncData()
+            viewModel.loadData()
             swipeRefreshLayout.isRefreshing = false
         }
     }
@@ -84,6 +87,12 @@ class ListFragment : Fragment() {
         toDoList.observe(viewLifecycleOwner) {
             updateCompletedNumber()
             listAdapter.submitList(it)
+        }
+        requestResult.observe(viewLifecycleOwner) { result ->
+            when (result) {
+                Result.INTERNET_CONNECTION_ERROR -> showNetWorkConnectionDialog()
+                else -> {}
+            }
         }
     }
 
@@ -137,7 +146,6 @@ class ListFragment : Fragment() {
 
     private fun setupItemClickListener() {
         listAdapter.onItemClickListener = {
-            //viewModel.loadData()
             findNavController().navigate(
                 ListFragmentDirections.actionListFragmentToDetailFragment()
                     .setTodoItemId(it.id)
@@ -246,6 +254,20 @@ class ListFragment : Fragment() {
         }
         val itemTouchHelper = ItemTouchHelper(callback)
         itemTouchHelper.attachToRecyclerView(rvShopList)
+    }
+
+    private fun showNetWorkConnectionDialog() {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(resources.getString(R.string.connection_error_title))
+            .setMessage(resources.getString(R.string.connection_error_message))
+            .setPositiveButton(resources.getString(R.string.OkText)) { _, _ ->
+                showSnackBar(resources.getString(R.string.show_cashed_todos_text))
+            }
+            .show()
+    }
+
+    private fun showSnackBar(message: String) {
+        Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
     }
 
     override fun onResume() {

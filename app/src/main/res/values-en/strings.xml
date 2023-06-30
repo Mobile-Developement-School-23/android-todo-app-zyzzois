@@ -33,4 +33,8 @@
     <string name="avatar">avatar</string>
     <string name="todo">add todo :)</string>
     <string name="skip_auth">Skip authorization</string>
+    <string name="connection_error_title">oops… it looks like you have a problem with the internet</string>
+    <string name="ignore">ignore</string>
+    <string name="show_cashed_todos_text">I have cached ToDos, but they may not be up to date</string>
+    <string name="connection_error_message">I can sync your ToDo`s as soon as you reconnect to the internet</string>
 </resources>

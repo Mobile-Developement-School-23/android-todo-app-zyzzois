@@ -14,6 +14,7 @@ import com.example.data.mapper.DtoDbMapper
 import com.example.domain.entity.TodoItemEntity
 import com.example.domain.entity.remote.Result
 import com.example.domain.repository.TodoItemsRepository
+import java.net.UnknownHostException
 import javax.inject.Inject
 
 class TodoItemsRepositoryImpl @Inject constructor(
@@ -44,40 +45,28 @@ class TodoItemsRepositoryImpl @Inject constructor(
         mapper.mapDbModelToEntity(it)
     }
 
-    override suspend fun loadData() {
+    override suspend fun loadData(): Result {
         try {
             val listFromServer = apiService.getToDoList()
             listFromServer.body()?.let {
                 updateRevision(it.revision)
             }
             when (listFromServer.result()) {
-                is RequestResult.SUCCESS -> {}
+                is RequestResult.SUCCESS -> {
+                    when (listFromServer.code()) {
+                        401 -> return Result.AUTH_ERROR
+                        500 -> return Result.SERVER_ERROR
+                    }
+                }
                 is RequestResult.ERROR -> {}
             }
 
+        } catch (e: UnknownHostException) {
+            return Result.INTERNET_CONNECTION_ERROR
         } catch (e: Exception) {
             e.stackTrace
         }
-    }
-
-    override suspend fun uploadToDoToServer() {
-        try {
-            val item = ToDoItemDto(ElementDto(
-                text = "теперь элементы добавляются",
-                importance = "low",
-                deadline = 9L,
-                done = false
-            ), 1, "ok")
-            val result = apiService.addToDo(5, item).result()
-            val code = apiService.addToDo(5, item).code()
-            Log.d("zyzz", code.toString())
-            when (result) {
-                is RequestResult.SUCCESS -> Log.d("zyzz", "SUCCESS")
-                is RequestResult.ERROR -> Log.d("zyzz", "request to upload todo to server crashed with error: ${result.e}")
-            }
-        } catch (e: Exception) {
-            e.stackTrace
-        }
+        return Result.SUCCESS
     }
 
     override suspend fun deleteItem(itemId: Int) {
