@@ -1,6 +1,7 @@
 package com.example.domain.repository
 
 import com.example.domain.entity.TodoItemEntity
+import com.example.domain.entity.remote.Result
 
 interface TodoItemsRepository {
     suspend fun addNewItem(item: TodoItemEntity)
@@ -10,4 +11,5 @@ interface TodoItemsRepository {
     suspend fun getItemsList(): List<TodoItemEntity>
     suspend fun loadData()
     suspend fun uploadToDoToServer()
+
 }

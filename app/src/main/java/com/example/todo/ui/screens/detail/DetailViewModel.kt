@@ -62,7 +62,8 @@ class DetailViewModel @Inject constructor(
                     val toDoItemEntity = it.copy(
                         text = content,
                         importance = importance,
-                        deadline = deadline
+                        deadline = deadline,
+                        dateOfChange = System.currentTimeMillis()
                     )
                     editItemUseCase(toDoItemEntity)
                 }

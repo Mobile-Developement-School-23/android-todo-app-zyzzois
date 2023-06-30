@@ -69,7 +69,14 @@ class ListFragment : Fragment() {
         setupBottomSheet()
         setupClickListeners()
         setupSwipeListener(binding.rcView)
+        setupSwipeToRefresh()
+    }
 
+    private fun setupSwipeToRefresh() = with(binding) {
+        swipeRefreshLayout.setOnRefreshListener {
+            viewModel.syncData()
+            swipeRefreshLayout.isRefreshing = false
+        }
     }
 
     private fun observeViewModel() = with(viewModel) {
@@ -130,7 +137,7 @@ class ListFragment : Fragment() {
 
     private fun setupItemClickListener() {
         listAdapter.onItemClickListener = {
-            viewModel.loadData()
+            //viewModel.loadData()
             findNavController().navigate(
                 ListFragmentDirections.actionListFragmentToDetailFragment()
                     .setTodoItemId(it.id)

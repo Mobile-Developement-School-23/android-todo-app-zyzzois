@@ -7,6 +7,8 @@ import com.example.data.network.ApiFactory
 import com.example.data.network.ApiService
 import com.example.data.repository.TodoItemsRepositoryImpl
 import com.example.domain.repository.TodoItemsRepository
+import com.example.data.core.preferences.RevisionPreference
+import com.example.data.core.preferences.RevisionPreferenceImpl
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -17,6 +19,11 @@ interface DataModule {
     @ApplicationScope
     @Binds
     fun bindToDoItemsRepository(impl: TodoItemsRepositoryImpl): TodoItemsRepository
+
+    @ApplicationScope
+    @Binds
+    fun provideSharedPreferences(impl: RevisionPreferenceImpl): RevisionPreference
+
 
     companion object {
 

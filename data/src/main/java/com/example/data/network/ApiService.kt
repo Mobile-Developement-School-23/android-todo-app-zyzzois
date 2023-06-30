@@ -1,9 +1,13 @@
 package com.example.data.network
 
+import com.example.data.network.models.PatchToDoListDto
 import com.example.data.network.models.ToDoItemDto
 import com.example.data.network.models.ToDoListDto
+import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.Headers
 import retrofit2.http.PATCH
 import retrofit2.http.POST
@@ -12,20 +16,32 @@ import java.util.UUID
 
 interface ApiService {
 
-    @Headers("Authorization: OAuth $token")
     @GET("list")
-    suspend fun getToDoList(): ToDoListDto
+    suspend fun getToDoList(): Response<ToDoListDto>
 
-    @Headers("X-Last-Known-Revision: 0", "Authorization: OAuth $token")
+
     @POST("list")
-    suspend fun uploadToDoElement(@Body toDoItemDto: ToDoItemDto)
+    suspend fun addToDo(
+        @Header("X-Last-Known-Revision") revision: Int,
+        @Body toDoItemDto: ToDoItemDto
+    ): Response<ToDoItemDto>
 
 
     @GET("list/{id}")
-    suspend fun getToDoItemById(@Path("id") id: Int): ToDoListDto
+    suspend fun getToDoById(
+        @Path("id") id: Int): Response<ToDoItemDto>
 
 
-    companion object {
-        private const val token = "y0_AgAAAABEww8dAAoW1AAAAADmPgw8qnY-Ic0-RbqS2v0vK-8qtP2eaFM"
-    }
+    @DELETE("list/{id}")
+    suspend fun deleteTodoById(
+        @Path("id") id: UUID
+    ): Response<ToDoItemDto>
+
+
+    @PATCH("list")
+    suspend fun updateToDoList(
+        @Header("X-Last-Known-Revision") revision: Int,
+        @Body toDoList: PatchToDoListDto
+    ): Response<ToDoListDto>
+
 }

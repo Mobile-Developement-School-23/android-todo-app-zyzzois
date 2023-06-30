@@ -6,7 +6,7 @@ import java.util.UUID
 data class ElementDto(
 
     @SerializedName("id")
-    val id: UUID,
+    val id: String = UUID.randomUUID().toString(),
 
     @SerializedName("text")
     val text: String,
@@ -24,10 +24,10 @@ data class ElementDto(
     val color: String? = null,
 
     @SerializedName("created_at")
-    val created_at: Long,
+    val created_at: Long = 1L,
 
     @SerializedName("changed_at")
-    val changed_at: Long,
+    val changed_at: Long = 1L,
 
     @SerializedName("last_updated_by")
     val last_updated_by: String = "123",

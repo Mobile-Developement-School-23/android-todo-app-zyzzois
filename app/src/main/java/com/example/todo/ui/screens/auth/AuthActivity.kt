@@ -7,12 +7,16 @@ import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ReportFragment.Companion.reportFragment
+import com.example.todo.R
 import com.example.todo.databinding.ActivityAuthBinding
 import com.example.todo.ui.screens.main.MainActivity
 import com.example.todo.ui.util.Constants
 import com.example.todo.ui.util.Constants.AUTH_FAILED
 import com.example.todo.ui.util.Constants.AUTH_STATE
 import com.example.todo.ui.util.Constants.AUTH_SUCCESS
+import com.example.todo.ui.util.Constants.AUTH_TABLE_NAME
+import com.example.todo.ui.util.Constants.AUTH_TOKEN_TABLE_NAME
 import com.example.todo.ui.util.showToast
 import com.yandex.authsdk.YandexAuthException
 import com.yandex.authsdk.YandexAuthLoginOptions
@@ -28,10 +32,14 @@ import kotlin.concurrent.thread
 class AuthActivity : AppCompatActivity() {
 
     private val isAlreadyAuthorized by lazy {
-        getSharedPreferences(Constants.AUTH_TABLE_NAME, Context.MODE_PRIVATE)
+        getSharedPreferences(AUTH_TABLE_NAME, Context.MODE_PRIVATE)
     }
     private val authStateEditor by lazy { isAlreadyAuthorized.edit() }
 
+    private val personalAuthToken by lazy {
+        getSharedPreferences(this.getString(R.string.auth_token_table_name), Context.MODE_PRIVATE)
+    }
+    private val personalAuthTokenEditor by lazy { personalAuthToken.edit() }
 
     private val binding by lazy {
         ActivityAuthBinding.inflate(layoutInflater)
@@ -71,13 +79,12 @@ class AuthActivity : AppCompatActivity() {
         launcher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             try {
                 val yandexAuthToken: YandexAuthToken? = sdk.extractToken(it.resultCode, it.data)
-
                 if (yandexAuthToken != null) {
+                    personalAuthTokenEditor.putString(KEY, yandexAuthToken.value)
+                    personalAuthTokenEditor.apply()
                     showToast(AUTH_SUCCESS)
-                    //authStateEditor.putBoolean(AUTH_STATE, true)
-                    //authStateEditor.apply()
-
-                    Log.d("zyzz", yandexAuthToken.value)
+                    authStateEditor.putBoolean(AUTH_STATE, true)
+                    authStateEditor.apply()
                     startActivity(MainActivity.newIntentOpenMainActivity(this))
                 }
             } catch (e: YandexAuthException) {
@@ -96,5 +103,8 @@ class AuthActivity : AppCompatActivity() {
         }
     }
 
+    companion object {
+        const val KEY = "auth_token_key"
+    }
 
 }

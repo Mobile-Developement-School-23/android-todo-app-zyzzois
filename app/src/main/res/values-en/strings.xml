@@ -24,7 +24,13 @@
     <string name="til_error">The text field cannot be empty!</string>
     <string name="medium_priority">Medium</string>
     <string name="low_priority">Low</string>
+    <string name="auth_token_table_name">auth_token_table_name</string>
     <string name="high_priority"><font color="#FF3B30">!! High</font></string>
     <string name="icon">icon</string>
     <string name="cancel">Cancel</string>
+    <string name="auth_token_key">auth token jey</string>
+    <string name="id">Login via Yandex ID</string>
+    <string name="avatar">avatar</string>
+    <string name="todo">add todo :)</string>
+    <string name="skip_auth">Skip authorization</string>
 </resources>
