@@ -1,19 +1,19 @@
 package com.example.todo.di
 
 import android.app.Application
-import com.example.data.database.AppDatabase
-import com.example.data.database.ToDoDao
-import com.example.data.network.ApiFactory
-import com.example.data.network.ApiService
-import com.example.data.repository.TodoItemsRepositoryImpl
-import com.example.domain.repository.TodoItemsRepository
+import android.content.Context
+import android.content.SharedPreferences
 import com.example.data.core.preferences.RevisionPreference
 import com.example.data.core.preferences.RevisionPreferenceImpl
+import com.example.data.database.AppDatabase
+import com.example.data.database.ToDoDao
+import com.example.data.network.Interceptor
+import com.example.data.network.RetrofitClient
+import com.example.data.repository.TodoItemsRepositoryImpl
+import com.example.domain.repository.TodoItemsRepository
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
-import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 
 @Module
 interface DataModule {
@@ -26,8 +26,8 @@ interface DataModule {
     @Binds
     fun provideSharedPreferences(impl: RevisionPreferenceImpl): RevisionPreference
 
-
     companion object {
+        private const val AUTH_TABLE_NAME = "auth"
 
         @ApplicationScope
         @Provides
@@ -38,11 +38,16 @@ interface DataModule {
         }
 
         @Provides
-        @ApplicationScope
-        fun provideToDoApi(): ApiService {
-            return ApiFactory.apiService
-        }
+        fun provideSharedPreferences(context: Application): SharedPreferences =
+            context.getSharedPreferences(AUTH_TABLE_NAME, Context.MODE_PRIVATE)
 
+        @Provides
+        fun provideServiceInterceptor(sharedPreferences: SharedPreferences): Interceptor =
+            Interceptor(sharedPreferences)
+
+        @Provides
+        fun provideRetrofitClient(interceptor: Interceptor): RetrofitClient =
+            RetrofitClient(interceptor)
 
     }
 }

@@ -15,9 +15,9 @@ object Constants {
     const val COMPLETED = "Выполнено - %d"
     const val AUTH_TABLE_NAME = "auth"
     const val AUTH_STATE = "auth state"
+    const val AUTH_TOKEN = "auth token"
     const val AUTH_SUCCESS = "Вы авторизованы"
     const val AUTH_FAILED = "Вы не авторизованы"
-    const val AUTH_TOKEN_TABLE_NAME = "auth_token_table_name"
 }
 
 object Converter {

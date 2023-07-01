@@ -35,6 +35,12 @@
     <string name="skip_auth">Skip authorization</string>
     <string name="connection_error_title">oops… it looks like you have a problem with the internet</string>
     <string name="ignore">ignore</string>
+    <string name="warning">warning</string>
+    <string name="notice">notice</string>
+    <string name="warning2">you can always come back here and log in</string>
+    <string name="authorize">authorize</string>
+    <string name="warning_content">Unauthorized users will not be able to sync their ToDos to the cloud</string>
+    <string name="successfully_synchronized">synchronized</string>
     <string name="show_cashed_todos_text">I have cached ToDos, but they may not be up to date</string>
     <string name="connection_error_message">I can sync your ToDo`s as soon as you reconnect to the internet</string>
 </resources>

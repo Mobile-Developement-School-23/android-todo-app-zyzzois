@@ -2,15 +2,15 @@ package com.example.data.repository
 
 import android.app.Application
 import android.util.Log
-import com.example.data.database.ToDoDao
-import com.example.data.mapper.Mapper
-import com.example.data.network.ApiService
-import com.example.data.network.RequestResult
-import com.example.data.network.models.ElementDto
-import com.example.data.network.models.ToDoItemDto
-import com.example.data.network.result
+import androidx.work.WorkManager
 import com.example.data.core.preferences.RevisionPreference
+import com.example.data.database.ToDoDao
 import com.example.data.mapper.DtoDbMapper
+import com.example.data.mapper.Mapper
+import com.example.data.network.RequestResult
+import com.example.data.network.RetrofitClient
+import com.example.data.network.result
+import com.example.data.workers.NetworkWorker
 import com.example.domain.entity.TodoItemEntity
 import com.example.domain.entity.remote.Result
 import com.example.domain.repository.TodoItemsRepository
@@ -20,9 +20,10 @@ import javax.inject.Inject
 class TodoItemsRepositoryImpl @Inject constructor(
     private val toDoDao: ToDoDao,
     private val mapper: Mapper,
+    private val apiService: RetrofitClient,
     private val dbDtoMapper: DtoDbMapper,
-    private val apiService: ApiService,
-    private val revisionPreference: RevisionPreference
+    private val revisionPreference: RevisionPreference,
+    private val application: Application
 ): TodoItemsRepository {
 
     override suspend fun addNewItem(item: TodoItemEntity) {
@@ -45,20 +46,30 @@ class TodoItemsRepositoryImpl @Inject constructor(
         mapper.mapDbModelToEntity(it)
     }
 
+    override suspend fun enableBackGroundUpdates() {
+        val workManager = WorkManager.getInstance(application)
+        workManager.enqueue(NetworkWorker.makeRequest())
+    }
+
     override suspend fun loadData(): Result {
         try {
-            val listFromServer = apiService.getToDoList()
-            listFromServer.body()?.let {
+            val request = apiService.api.getToDoList()
+            request.body()?.let {
                 updateRevision(it.revision)
             }
-            when (listFromServer.result()) {
+            when (request.result()) {
                 is RequestResult.SUCCESS -> {
-                    when (listFromServer.code()) {
+                    toDoDao.clearTable()
+                    request.body()?.let { dbDtoMapper.mapListDtoToListModelDb(it) }?.forEach {
+                        toDoDao.addTodo(it)
+                    }
+                    return Result.SUCCESS
+                }
+                is RequestResult.ERROR -> {
+                    when (request.code()) {
                         401 -> return Result.AUTH_ERROR
-                        500 -> return Result.SERVER_ERROR
                     }
                 }
-                is RequestResult.ERROR -> {}
             }
 
         } catch (e: UnknownHostException) {
@@ -78,7 +89,7 @@ class TodoItemsRepositoryImpl @Inject constructor(
         val dtoList = dbDtoMapper.mapListModelDbToListDto(toDoDao.getToDoList())
         logMessage(dtoList.toString())
         try {
-            val requestUpdate = apiService.updateToDoList(revisionPreference.getRevision(), dtoList)
+            val requestUpdate = apiService.api.updateToDoList(revisionPreference.getRevision(), dtoList)
             requestUpdate.body()?.let { updateRevision(it.revision) }
             when (requestUpdate.result()) {
                 is RequestResult.ERROR -> logMessage("Server updated error")

@@ -25,9 +25,7 @@ class ListViewModel @Inject constructor(
         get() = _requestResult
 
     init {
-        viewModelScope.launch {
-            _requestResult.value = loadDataUseCase()
-        }
+        loadData()
     }
 
     fun loadData() {
@@ -39,12 +37,6 @@ class ListViewModel @Inject constructor(
     private val _toDoList = MutableLiveData<List<TodoItemEntity>?>()
     val toDoList: LiveData<List<TodoItemEntity>?>
         get() = _toDoList
-
-
-
-    private val _shouldShowError = MutableLiveData<Boolean>()
-    val shouldShowError: MutableLiveData<Boolean>
-        get() = _shouldShowError
 
     private val _completedNumber = MutableLiveData<Int>()
     val completedNumber: LiveData<Int>
@@ -77,15 +69,6 @@ class ListViewModel @Inject constructor(
             deleteItemUseCase(todoItemId)
         }
         updateList()
-    }
-
-    fun syncData() {
-        viewModelScope.launch {
-            loadDataUseCase()
-//            if (_requestResult.value == Result.SUCCESS) {
-//                _shouldShowError.value = false
-//            }
-        }
     }
 
     fun updateCompletedNumber() {

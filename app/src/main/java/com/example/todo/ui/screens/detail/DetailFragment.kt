@@ -18,7 +18,7 @@ import com.example.domain.entity.TodoItemEntity
 import com.example.todo.R
 import com.example.todo.app.ToDoApp
 import com.example.todo.databinding.FragmentDetailBinding
-import com.example.todo.ui.screens.main.ViewModelFactory
+import com.example.todo.ui.core.factories.ViewModelFactory
 import com.example.todo.ui.util.Constants.BINDING_NULL_EXCEPTION_MESSAGE
 import com.example.todo.ui.util.Constants.DEFAULT_ID
 import com.example.todo.ui.util.Constants.MODE_ADD

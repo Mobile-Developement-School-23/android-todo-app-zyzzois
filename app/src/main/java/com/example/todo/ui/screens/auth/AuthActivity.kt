@@ -3,43 +3,49 @@ package com.example.todo.ui.screens.auth
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
+import android.view.View
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ReportFragment.Companion.reportFragment
+import androidx.lifecycle.ViewModelProvider
 import com.example.todo.R
+import com.example.todo.app.ToDoApp
 import com.example.todo.databinding.ActivityAuthBinding
+import com.example.todo.ui.core.factories.ViewModelFactory
 import com.example.todo.ui.screens.main.MainActivity
-import com.example.todo.ui.util.Constants
 import com.example.todo.ui.util.Constants.AUTH_FAILED
 import com.example.todo.ui.util.Constants.AUTH_STATE
 import com.example.todo.ui.util.Constants.AUTH_SUCCESS
 import com.example.todo.ui.util.Constants.AUTH_TABLE_NAME
-import com.example.todo.ui.util.Constants.AUTH_TOKEN_TABLE_NAME
+import com.example.todo.ui.util.Constants.AUTH_TOKEN
 import com.example.todo.ui.util.showToast
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.yandex.authsdk.YandexAuthException
 import com.yandex.authsdk.YandexAuthLoginOptions
 import com.yandex.authsdk.YandexAuthOptions
 import com.yandex.authsdk.YandexAuthSdk
 import com.yandex.authsdk.YandexAuthToken
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Runnable
-import kotlinx.coroutines.withContext
-import kotlin.concurrent.thread
+import javax.inject.Inject
 
 
 class AuthActivity : AppCompatActivity() {
 
-    private val isAlreadyAuthorized by lazy {
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
+
+    private val component by lazy {
+        (application as ToDoApp).component
+    }
+
+    private val viewModel by lazy {
+        ViewModelProvider(this, viewModelFactory)[AuthViewModel::class.java]
+    }
+
+
+    private val authPreferences by lazy {
         getSharedPreferences(AUTH_TABLE_NAME, Context.MODE_PRIVATE)
     }
-    private val authStateEditor by lazy { isAlreadyAuthorized.edit() }
-
-    private val personalAuthToken by lazy {
-        getSharedPreferences(this.getString(R.string.auth_token_table_name), Context.MODE_PRIVATE)
-    }
-    private val personalAuthTokenEditor by lazy { personalAuthToken.edit() }
+    private val authPreferencesEditor by lazy { authPreferences.edit() }
 
     private val binding by lazy {
         ActivityAuthBinding.inflate(layoutInflater)
@@ -61,15 +67,28 @@ class AuthActivity : AppCompatActivity() {
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        component.inject(this)
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+        observeViewModel()
         //checkAuthState()
         setupAuthResultObserver()
         setupButtons()
     }
 
+    private fun observeViewModel() {
+        viewModel.alreadyAuthorized.observe(this) { authorized ->
+            if (authorized) {
+                binding.imageView.visibility = View.VISIBLE
+                binding.buttonNext.text = "Выйти"
+            } else {
+                binding.imageView.visibility = View.GONE
+            }
+        }
+    }
+
     private fun checkAuthState() {
-        if(isAlreadyAuthorized.getBoolean(AUTH_STATE, false)) {
+        if(authPreferences.getBoolean(AUTH_STATE, false)) {
             showToast(AUTH_SUCCESS)
             startActivity(MainActivity.newIntentOpenMainActivity(this))
         } else showToast(AUTH_FAILED)
@@ -80,11 +99,12 @@ class AuthActivity : AppCompatActivity() {
             try {
                 val yandexAuthToken: YandexAuthToken? = sdk.extractToken(it.resultCode, it.data)
                 if (yandexAuthToken != null) {
-                    personalAuthTokenEditor.putString(KEY, yandexAuthToken.value)
-                    personalAuthTokenEditor.apply()
+                    viewModel.changeAuthStatus(true)
+                    authPreferencesEditor.putString(AUTH_TOKEN, yandexAuthToken.value)
+                    authPreferencesEditor.apply()
                     showToast(AUTH_SUCCESS)
-                    authStateEditor.putBoolean(AUTH_STATE, true)
-                    authStateEditor.apply()
+                    authPreferencesEditor.putBoolean(AUTH_STATE, true)
+                    authPreferencesEditor.apply()
                     startActivity(MainActivity.newIntentOpenMainActivity(this))
                 }
             } catch (e: YandexAuthException) {
@@ -99,12 +119,33 @@ class AuthActivity : AppCompatActivity() {
         }
 
         buttonNext.setOnClickListener {
-            startActivity(MainActivity.newIntentOpenMainActivity(this@AuthActivity))
+            MaterialAlertDialogBuilder(this@AuthActivity)
+                .setTitle(resources.getString(R.string.warning))
+                .setMessage(resources.getString(R.string.warning_content))
+                .setPositiveButton(resources.getString(R.string.authorize)) { _, _ ->
+                    launcher?.launch(authIntent)
+                }
+                .setNeutralButton(resources.getString(R.string.ignore)) { _, _ ->
+                    showSecondDialog()
+                }
+                .show()
+
         }
     }
 
+    private fun showSecondDialog() {
+        MaterialAlertDialogBuilder(this@AuthActivity)
+            .setTitle(resources.getString(R.string.notice))
+            .setMessage(resources.getString(R.string.warning2))
+            .setPositiveButton(resources.getString(R.string.OkText)) { _, _ ->
+                startActivity(MainActivity.newIntentOpenMainActivity(this@AuthActivity))
+            }
+            .show()
+    }
+
+
     companion object {
-        const val KEY = "auth_token_key"
+        fun newIntentOpenAuthActivity(context: Context) = Intent(context, AuthActivity::class.java)
     }
 
 }

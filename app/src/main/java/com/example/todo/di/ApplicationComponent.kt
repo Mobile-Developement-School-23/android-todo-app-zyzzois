@@ -2,6 +2,7 @@ package com.example.todo.di
 
 import android.app.Application
 import com.example.todo.app.ToDoApp
+import com.example.todo.ui.screens.auth.AuthActivity
 import com.example.todo.ui.screens.detail.DetailFragment
 import com.example.todo.ui.screens.main.ListFragment
 import dagger.BindsInstance
@@ -19,6 +20,7 @@ interface ApplicationComponent {
     fun inject(fragment: ListFragment)
     fun inject(fragment: DetailFragment)
     fun inject(application: ToDoApp)
+    fun inject(activity: AuthActivity)
 
     @Component.Factory
     interface ApplicationComponentFactory {

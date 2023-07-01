@@ -2,7 +2,6 @@ package com.example.todo.ui.screens.main
 
 import android.content.Context
 import android.graphics.Canvas
-import android.net.ConnectivityManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -18,10 +17,15 @@ import com.example.domain.entity.remote.Result
 import com.example.todo.R
 import com.example.todo.app.ToDoApp
 import com.example.todo.databinding.FragmentListBinding
+import com.example.todo.ui.core.factories.ViewModelFactory
+import com.example.todo.ui.core.network.ConnectionListener
+import com.example.todo.ui.screens.auth.AuthActivity
 import com.example.todo.ui.screens.main.recycler.ToDoListAdapter
+import com.example.todo.ui.util.Constants.AUTH_TABLE_NAME
 import com.example.todo.ui.util.Constants.BINDING_NULL_EXCEPTION_MESSAGE
 import com.example.todo.ui.util.Constants.COMPLETED
 import com.example.todo.ui.util.Constants.MODE_EDIT
+import com.example.todo.ui.util.showToast
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
@@ -32,6 +36,12 @@ class ListFragment : Fragment() {
 
     private val component by lazy {
         (requireActivity().application as ToDoApp).component
+    }
+
+    private val connectionListener by lazy { ConnectionListener(requireActivity().application) }
+
+    private val authPreferences by lazy {
+        requireContext().getSharedPreferences(AUTH_TABLE_NAME, Context.MODE_PRIVATE)
     }
 
     @Inject
@@ -70,10 +80,11 @@ class ListFragment : Fragment() {
         observeViewModel()
         setupRecyclerView()
         setupBottomSheet()
-        setupClickListeners()
+        setupButtons()
         setupSwipeListener(binding.rcView)
         setupSwipeToRefresh()
     }
+
 
     private fun setupSwipeToRefresh() = with(binding) {
         swipeRefreshLayout.setOnRefreshListener {
@@ -83,7 +94,7 @@ class ListFragment : Fragment() {
     }
 
     private fun observeViewModel() = with(viewModel) {
-        updateList()
+        //updateList()
         toDoList.observe(viewLifecycleOwner) {
             updateCompletedNumber()
             listAdapter.submitList(it)
@@ -91,8 +102,16 @@ class ListFragment : Fragment() {
         requestResult.observe(viewLifecycleOwner) { result ->
             when (result) {
                 Result.INTERNET_CONNECTION_ERROR -> showNetWorkConnectionDialog()
+                Result.SUCCESS -> showToast(requireContext().getString(R.string.successfully_synchronized))
                 else -> {}
             }
+        }
+
+        connectionListener.observe(viewLifecycleOwner) { connected ->
+            if (connected) {
+                //viewModel.loadData()
+            }
+             else showSnackBar("вы не подключены к сети")
         }
     }
 
@@ -170,7 +189,12 @@ class ListFragment : Fragment() {
         bottomSheetBackGround.visibility = View.GONE
     }
 
-    private fun setupClickListeners() = with(binding) {
+    private fun setupButtons() = with(binding) {
+
+        binding.buttonAuth.setOnClickListener {
+            startActivity(AuthActivity.newIntentOpenAuthActivity(requireContext()))
+        }
+
         buttonAddItem.setOnClickListener {
             findNavController().navigate(
                 ListFragmentDirections.actionListFragmentToDetailFragment()
