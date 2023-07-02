@@ -60,7 +60,9 @@ class TodoItemsRepositoryImpl @Inject constructor(
             when (request.result()) {
                 is RequestResult.SUCCESS -> {
                     toDoDao.clearTable()
-                    request.body()?.let { dbDtoMapper.mapListDtoToListModelDb(it) }?.forEach {
+                    request.body()?.let {
+                        dbDtoMapper.mapListDtoToListModelDb(it)
+                    }?.forEach {
                         toDoDao.addTodo(it)
                     }
                     return Result.SUCCESS
@@ -87,10 +89,13 @@ class TodoItemsRepositoryImpl @Inject constructor(
 
     private suspend fun updateServer() {
         val dtoList = dbDtoMapper.mapListModelDbToListDto(toDoDao.getToDoList())
-        logMessage(dtoList.toString())
         try {
-            val requestUpdate = apiService.api.updateToDoList(revisionPreference.getRevision(), dtoList)
-            requestUpdate.body()?.let { updateRevision(it.revision) }
+            val currentRevision = revisionPreference.getRevision()
+            val requestUpdate = apiService.api.updateToDoList(currentRevision, dtoList)
+            requestUpdate.body()?.let {
+                toDoDao.updateList(dbDtoMapper.mapListDtoToListModelDb(it))
+                updateRevision(it.revision)
+            }
             when (requestUpdate.result()) {
                 is RequestResult.ERROR -> logMessage("Server updated error")
                 is RequestResult.SUCCESS -> logMessage("Server updated successfully")

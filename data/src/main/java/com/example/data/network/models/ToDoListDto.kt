@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName
 data class ToDoListDto(
 
     @SerializedName("list")
-    val list: List<ToDoItemDto>,
+    val list: List<ElementDto>,
 
     @SerializedName("revision")
     val revision: Int,

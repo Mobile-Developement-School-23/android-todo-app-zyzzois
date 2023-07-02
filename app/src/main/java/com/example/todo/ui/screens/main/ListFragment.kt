@@ -108,9 +108,7 @@ class ListFragment : Fragment() {
         }
 
         connectionListener.observe(viewLifecycleOwner) { connected ->
-            if (connected) {
-                //viewModel.loadData()
-            }
+            if (connected) viewModel.loadData()
              else showSnackBar("вы не подключены к сети")
         }
     }

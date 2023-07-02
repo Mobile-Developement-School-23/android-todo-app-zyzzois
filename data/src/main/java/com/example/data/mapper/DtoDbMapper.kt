@@ -24,13 +24,13 @@ class DtoDbMapper @Inject constructor() {
     fun mapListDtoToListModelDb(listDto: ToDoListDto): List<TodoItemModelDb> {
         val res = listDto.list.map {
             TodoItemModelDb(
-                id = it.elementDto.id.toInt(),
-                text = it.elementDto.text,
-                importance = it.elementDto.importance,
-                deadline = it.elementDto.deadline,
-                completed = it.elementDto.done,
-                dateOfCreation = it.elementDto.created_at,
-                dateOfChange = it.elementDto.changed_at
+                id = it.id.toInt(),
+                text = it.text,
+                importance = it.importance,
+                deadline = it.deadline,
+                completed = it.done,
+                dateOfCreation = it.created_at,
+                dateOfChange = it.changed_at
             )
         }
         return res

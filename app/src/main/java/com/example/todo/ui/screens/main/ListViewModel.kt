@@ -31,6 +31,7 @@ class ListViewModel @Inject constructor(
     fun loadData() {
         viewModelScope.launch {
             _requestResult.value = loadDataUseCase()
+            _toDoList.value = getToDoListUseCase()
         }
     }
 
