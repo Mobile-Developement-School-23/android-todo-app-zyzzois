@@ -1,7 +1,6 @@
 package com.example.data.repository
 
 import android.app.Application
-import android.util.Log
 import androidx.work.WorkManager
 import com.example.data.core.preferences.RevisionPreference
 import com.example.data.database.ToDoDao
@@ -70,6 +69,8 @@ class TodoItemsRepositoryImpl @Inject constructor(
                 is RequestResult.ERROR -> {
                     when (request.code()) {
                         401 -> return Result.AUTH_ERROR
+                        500 -> return Result.SERVER_ERROR
+                        400 -> return Result.REVISION_ERROR
                     }
                 }
             }
@@ -96,10 +97,6 @@ class TodoItemsRepositoryImpl @Inject constructor(
                 toDoDao.updateList(dbDtoMapper.mapListDtoToListModelDb(it))
                 updateRevision(it.revision)
             }
-            when (requestUpdate.result()) {
-                is RequestResult.ERROR -> logMessage("Server updated error")
-                is RequestResult.SUCCESS -> logMessage("Server updated successfully")
-            }
         } catch (e: Exception) {
             e.stackTrace
         }
@@ -107,14 +104,6 @@ class TodoItemsRepositoryImpl @Inject constructor(
 
     private fun updateRevision(newRevision: Int) {
         revisionPreference.setRevision(newRevision)
-    }
-
-    private fun logMessage(msg: String) {
-        Log.d(TAG, msg)
-    }
-
-    companion object {
-        const val TAG = "zyzz"
     }
 
 }

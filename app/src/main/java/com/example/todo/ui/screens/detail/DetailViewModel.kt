@@ -93,4 +93,5 @@ class DetailViewModel @Inject constructor(
     fun resetErrorInputText() {
         _errorInputText.value = false
     }
+
 }

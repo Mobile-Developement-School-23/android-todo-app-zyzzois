@@ -71,7 +71,7 @@ class AuthActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         observeViewModel()
-        //checkAuthState()
+        checkAuthState()
         setupAuthResultObserver()
         setupButtons()
     }

@@ -11,4 +11,5 @@ interface TodoItemsRepository {
     suspend fun getItemsList(): List<TodoItemEntity>
     suspend fun enableBackGroundUpdates()
     suspend fun loadData(): Result
+
 }

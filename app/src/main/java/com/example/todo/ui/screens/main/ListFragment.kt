@@ -1,13 +1,11 @@
 package com.example.todo.ui.screens.main
 
 import android.content.Context
-import android.graphics.Canvas
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -20,8 +18,8 @@ import com.example.todo.databinding.FragmentListBinding
 import com.example.todo.ui.core.factories.ViewModelFactory
 import com.example.todo.ui.core.network.ConnectionListener
 import com.example.todo.ui.screens.auth.AuthActivity
+import com.example.todo.ui.screens.main.recycler.SwipeTodoItemCallback
 import com.example.todo.ui.screens.main.recycler.ToDoListAdapter
-import com.example.todo.ui.util.Constants.AUTH_TABLE_NAME
 import com.example.todo.ui.util.Constants.BINDING_NULL_EXCEPTION_MESSAGE
 import com.example.todo.ui.util.Constants.COMPLETED
 import com.example.todo.ui.util.Constants.MODE_EDIT
@@ -29,8 +27,8 @@ import com.example.todo.ui.util.showToast
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
-import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator
 import javax.inject.Inject
+
 
 class ListFragment : Fragment() {
 
@@ -39,10 +37,6 @@ class ListFragment : Fragment() {
     }
 
     private val connectionListener by lazy { ConnectionListener(requireActivity().application) }
-
-    private val authPreferences by lazy {
-        requireContext().getSharedPreferences(AUTH_TABLE_NAME, Context.MODE_PRIVATE)
-    }
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
@@ -82,15 +76,7 @@ class ListFragment : Fragment() {
         setupBottomSheet()
         setupButtons()
         setupSwipeListener(binding.rcView)
-        setupSwipeToRefresh()
-    }
-
-
-    private fun setupSwipeToRefresh() = with(binding) {
-        swipeRefreshLayout.setOnRefreshListener {
-            viewModel.loadData()
-            swipeRefreshLayout.isRefreshing = false
-        }
+        //setupCheckBoxClickListener()
     }
 
     private fun observeViewModel() = with(viewModel) {
@@ -102,14 +88,15 @@ class ListFragment : Fragment() {
         requestResult.observe(viewLifecycleOwner) { result ->
             when (result) {
                 Result.INTERNET_CONNECTION_ERROR -> showNetWorkConnectionDialog()
-                Result.SUCCESS -> showToast(requireContext().getString(R.string.successfully_synchronized))
                 else -> {}
             }
         }
 
         connectionListener.observe(viewLifecycleOwner) { connected ->
-            if (connected) viewModel.loadData()
-             else showSnackBar("вы не подключены к сети")
+            if (connected) {
+                viewModel.loadData()
+            }
+            else showSnackBar("вы не подключены к сети")
         }
     }
 
@@ -131,13 +118,13 @@ class ListFragment : Fragment() {
             bottomSheetBackGround.visibility = View.VISIBLE
 
             bottomSheetBackGround.setOnClickListener {
-                hideBottomSheetMenus()
+                hideBottomMenus()
             }
             bottomMenuRename.buttonDeleteOnBottomMenu.setOnClickListener {
-                hideBottomSheetMenus()
+                hideBottomMenus()
             }
             bottomMenuActions.buttonDelete.setOnClickListener {
-                hideBottomSheetMenus()
+                hideBottomMenus()
             }
 
             bottomMenuActions.buttonRename.setOnClickListener {
@@ -150,12 +137,12 @@ class ListFragment : Fragment() {
                     bottomMenuRename.buttonSaveOnBottomMenu.setOnClickListener {
                         val newName = bottomMenuRename.inputFileName.text.toString()
                         viewModel.renameToDoItem(selectedItem, newName)
-                        hideBottomSheetMenus()
+                        hideBottomMenus()
                     }
                 }
             }
             bottomMenuActions.buttonDelete.setOnClickListener {
-                hideBottomSheetMenus()
+                hideBottomMenus()
             }
 
         }
@@ -180,7 +167,7 @@ class ListFragment : Fragment() {
         setupItemLongClickListener()
     }
 
-    private fun hideBottomSheetMenus() = with(binding) {
+    private fun hideBottomMenus() = with(binding) {
         buttonAddItem.visibility = View.VISIBLE
         bottomActions.state = BottomSheetBehavior.STATE_COLLAPSED
         bottomRename.state = BottomSheetBehavior.STATE_COLLAPSED
@@ -189,7 +176,15 @@ class ListFragment : Fragment() {
 
     private fun setupButtons() = with(binding) {
 
-        binding.buttonAuth.setOnClickListener {
+        binding.buttonSync.setOnClickListener {
+            viewModel.updateList()
+            viewModel.loadData()
+            if (viewModel.requestResult.value == Result.SUCCESS) {
+                showToast(requireContext().getString(R.string.successfully_synchronized))
+            }
+        }
+
+        buttonAuth.setOnClickListener {
             startActivity(AuthActivity.newIntentOpenAuthActivity(requireContext()))
         }
 
@@ -211,71 +206,24 @@ class ListFragment : Fragment() {
         }
     }
 
-    private fun setupSwipeListener(rvShopList: RecyclerView) {
-        val callback = object : ItemTouchHelper.SimpleCallback(
-            0,
-            ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT
-        ) {
-            override fun onMove(
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-                target: RecyclerView.ViewHolder
-            ): Boolean {
-                return false
-            }
-
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                val position = viewHolder.layoutPosition
+    private fun setupSwipeListener(recyclerView: RecyclerView) {
+        val swipeCallback = SwipeTodoItemCallback(
+            onSwipeLeft = { position ->
                 val item = listAdapter.currentList[position]
-                when (direction) {
-                    ItemTouchHelper.LEFT -> {
-                        viewModel.deleteToDoItem(item.id)
-                        viewModel.updateList()
-                    }
-                    ItemTouchHelper.RIGHT -> viewModel.editToDoItem(item, completed = !item.completed)
-                }
+                viewModel.deleteToDoItem(item.id)
                 viewModel.updateList()
-            }
+            },
+            onSwipeRight = { position ->
+                val item = listAdapter.currentList[position]
+                viewModel.editToDoItem(item, completed = !item.completed)
+                viewModel.updateList()
+            },
+            applicationContext = requireActivity().baseContext
+        )
 
-            override fun onChildDraw(
-                c: Canvas,
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-                dX: Float,
-                dY: Float,
-                actionState: Int,
-                isCurrentlyActive: Boolean
-            ) {
-                RecyclerViewSwipeDecorator.Builder(
-                    c,
-                    recyclerView,
-                    viewHolder,
-                    dX,
-                    dY,
-                    actionState,
-                    isCurrentlyActive
-                )
-                    .addSwipeRightBackgroundColor(ContextCompat.getColor(requireContext(), R.color.green))
-                    .addSwipeRightActionIcon(R.drawable.ic_checked)
-                    .addSwipeLeftBackgroundColor(ContextCompat.getColor(requireContext(), R.color.red))
-                    .addSwipeLeftActionIcon(R.drawable.ic_small_delete)
-                    .setSwipeLeftLabelColor(ContextCompat.getColor(requireContext(), R.color.white))
-                    .create()
-                    .decorate()
+        val itemTouchHelper = ItemTouchHelper(swipeCallback)
+        itemTouchHelper.attachToRecyclerView(recyclerView)
 
-                super.onChildDraw(
-                    c,
-                    recyclerView,
-                    viewHolder,
-                    dX,
-                    dY,
-                    actionState,
-                    isCurrentlyActive
-                )
-            }
-        }
-        val itemTouchHelper = ItemTouchHelper(callback)
-        itemTouchHelper.attachToRecyclerView(rvShopList)
     }
 
     private fun showNetWorkConnectionDialog() {
@@ -294,6 +242,7 @@ class ListFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+        viewModel.loadData()
         viewModel.updateList()
     }
 

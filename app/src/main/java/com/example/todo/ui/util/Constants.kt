@@ -24,9 +24,9 @@ object Converter {
     fun convertStringToImportance(stringImportance: String): Importance {
         return when (stringImportance) {
             "Низкий" -> Importance.Low
-            "Нет" -> Importance.Normal
-            "!! Высокий" -> Importance.Urgent
-            else -> Importance.Normal
+            "Нет" -> Importance.Basic
+            "!! Высокий" -> Importance.Important
+            else -> Importance.Basic
         }
     }
 }

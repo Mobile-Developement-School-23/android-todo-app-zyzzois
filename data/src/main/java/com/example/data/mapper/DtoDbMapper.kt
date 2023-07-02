@@ -14,9 +14,11 @@ class DtoDbMapper @Inject constructor() {
                 id = it.id.toString(),
                 text = it.text,
                 deadline = it.deadline,
-                importance = "low",
+                importance = it.importance,
                 done = it.completed,
-                last_updated_by = "me"
+                last_updated_by = "me",
+                created_at = it.dateOfCreation,
+                changed_at = it.dateOfChange
             )
         }
     )

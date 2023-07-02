@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -136,11 +137,11 @@ class DetailFragment : Fragment() {
                     tvImportanceState.text = getString(R.string.low_importance)
                     tvImportanceState.setTextColor(requireContext().getColor(R.color.black))
                 }
-                Importance.Urgent -> {
+                Importance.Important -> {
                     tvImportanceState.text = getString(R.string.high_importance)
                     tvImportanceState.setTextColor(requireContext().getColor(R.color.red))
                 }
-                Importance.Normal -> {
+                Importance.Basic -> {
                     tvImportanceState.text = getString(R.string.hint_no)
                     tvImportanceState.setTextColor(requireContext().getColor(R.color.medium_gray))
                 }
@@ -277,6 +278,7 @@ class DetailFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        Log.d("zyzz", "onDestroyView")
         _binding = null
     }
 

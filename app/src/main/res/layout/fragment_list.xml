@@ -45,6 +45,18 @@
                 android:focusable="true"
                 android:src="@drawable/ic_eye" />
 
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/buttonSync"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end|bottom"
+                android:layout_marginEnd="104dp"
+                android:layout_marginBottom="20dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:src="@drawable/ic_sync" />
+
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/buttonAuth"
                 android:layout_width="wrap_content"
@@ -77,23 +89,17 @@
         android:layout_height="wrap_content"
         app:cardCornerRadius="10dp"
         android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:layout_marginEnd="8dp">
 
-        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-            android:id="@+id/swipeRefreshLayout"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rc_view"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rc_view"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
-        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-
+            android:layout_height="wrap_content"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
     </androidx.cardview.widget.CardView>
+
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/buttonAddItem"

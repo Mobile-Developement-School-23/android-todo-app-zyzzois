@@ -38,6 +38,7 @@ class ToDoListAdapter: ListAdapter<TodoItemEntity, ToDoListAdapter.ToDoItemViewH
             onItemClickListener?.invoke(toDoItem)
         }
 
+
         with(binding) {
             icon.setImageResource(toDoItem.importance.toResource())
             if (toDoItem.completed) {
@@ -46,9 +47,9 @@ class ToDoListAdapter: ListAdapter<TodoItemEntity, ToDoListAdapter.ToDoItemViewH
                 tvContent.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG
             }
             when (toDoItem.importance) {
-                Importance.Normal -> tvContent.text = toDoItem.text
+                Importance.Basic -> tvContent.text = toDoItem.text
                 Importance.Low -> tvContent.text = toDoItem.text
-                Importance.Urgent -> tvContent.text = toDoItem.text
+                Importance.Important -> tvContent.text = toDoItem.text
                 else -> {}
             }
         }
@@ -56,7 +57,7 @@ class ToDoListAdapter: ListAdapter<TodoItemEntity, ToDoListAdapter.ToDoItemViewH
 
     private fun Importance.toResource() = when(this) {
         Importance.Low -> R.drawable.ic_priority_low_24dp
-        Importance.Urgent -> R.drawable.ic_priority_high_24dp
+        Importance.Important -> R.drawable.ic_priority_high_24dp
         else -> 0
     }
 

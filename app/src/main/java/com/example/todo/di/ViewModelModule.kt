@@ -32,7 +32,6 @@ interface ViewModelModule {
 
 
     companion object {
-
         @Provides
         @ApplicationScope
         fun provideConnectivityManager(context: Application): ConnectivityManager {
