@@ -1,4 +1,4 @@
-package com.example.todo.ui.screens
+package com.example.todo.ui.screens.main
 
 import android.content.Context
 import android.graphics.Canvas
@@ -13,16 +13,22 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
+import com.example.domain.entity.remote.Result
 import com.example.todo.R
 import com.example.todo.app.ToDoApp
 import com.example.todo.databinding.FragmentListBinding
-import com.example.todo.ui.recycler.ToDoListAdapter
-import com.example.todo.ui.viewmodels.ListViewModel
-import com.example.todo.ui.viewmodels.ViewModelFactory
-import com.example.todo.util.Constants.BINDING_NULL_EXCEPTION_MESSAGE
-import com.example.todo.util.Constants.COMPLETED
-import com.example.todo.util.Constants.MODE_EDIT
+import com.example.todo.ui.core.factories.ViewModelFactory
+import com.example.todo.ui.core.network.ConnectionListener
+import com.example.todo.ui.screens.auth.AuthActivity
+import com.example.todo.ui.screens.main.recycler.ToDoListAdapter
+import com.example.todo.ui.util.Constants.AUTH_TABLE_NAME
+import com.example.todo.ui.util.Constants.BINDING_NULL_EXCEPTION_MESSAGE
+import com.example.todo.ui.util.Constants.COMPLETED
+import com.example.todo.ui.util.Constants.MODE_EDIT
+import com.example.todo.ui.util.showToast
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator
 import javax.inject.Inject
 
@@ -30,6 +36,12 @@ class ListFragment : Fragment() {
 
     private val component by lazy {
         (requireActivity().application as ToDoApp).component
+    }
+
+    private val connectionListener by lazy { ConnectionListener(requireActivity().application) }
+
+    private val authPreferences by lazy {
+        requireContext().getSharedPreferences(AUTH_TABLE_NAME, Context.MODE_PRIVATE)
     }
 
     @Inject
@@ -47,8 +59,8 @@ class ListFragment : Fragment() {
     private val binding: FragmentListBinding
         get() = _binding ?: throw RuntimeException(BINDING_NULL_EXCEPTION_MESSAGE)
 
-    private lateinit var bottomSheetBehaviorActions: BottomSheetBehavior<LinearLayout>
-    private lateinit var bottomSheetBehaviorRename: BottomSheetBehavior<LinearLayout>
+    private lateinit var bottomActions: BottomSheetBehavior<LinearLayout>
+    private lateinit var bottomRename: BottomSheetBehavior<LinearLayout>
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -65,24 +77,49 @@ class ListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.updateList()
+        observeViewModel()
         setupRecyclerView()
-        viewModel.toDoList.observe(viewLifecycleOwner) {
-            viewModel.updateCompletedNumber()
-            listAdapter.submitList(it)
-        }
         setupBottomSheet()
-        setupClickListeners()
+        setupButtons()
         setupSwipeListener(binding.rcView)
+        setupSwipeToRefresh()
     }
 
-    private fun setupBottomSheet() {
-        bottomSheetBehaviorActions = BottomSheetBehavior.from(binding.bottomMenuActions.bottomActions)
-        bottomSheetBehaviorRename = BottomSheetBehavior.from(binding.bottomMenuRename.bottomMenu)
-        bottomSheetBehaviorActions.peekHeight = 0
-        bottomSheetBehaviorRename.peekHeight = 0
-        bottomSheetBehaviorActions.state = BottomSheetBehavior.STATE_COLLAPSED
-        bottomSheetBehaviorRename.state = BottomSheetBehavior.STATE_COLLAPSED
+
+    private fun setupSwipeToRefresh() = with(binding) {
+        swipeRefreshLayout.setOnRefreshListener {
+            viewModel.loadData()
+            swipeRefreshLayout.isRefreshing = false
+        }
+    }
+
+    private fun observeViewModel() = with(viewModel) {
+        //updateList()
+        toDoList.observe(viewLifecycleOwner) {
+            updateCompletedNumber()
+            listAdapter.submitList(it)
+        }
+        requestResult.observe(viewLifecycleOwner) { result ->
+            when (result) {
+                Result.INTERNET_CONNECTION_ERROR -> showNetWorkConnectionDialog()
+                Result.SUCCESS -> showToast(requireContext().getString(R.string.successfully_synchronized))
+                else -> {}
+            }
+        }
+
+        connectionListener.observe(viewLifecycleOwner) { connected ->
+            if (connected) viewModel.loadData()
+             else showSnackBar("вы не подключены к сети")
+        }
+    }
+
+    private fun setupBottomSheet()  {
+        bottomActions = BottomSheetBehavior.from(binding.bottomMenuActions.bottomActions)
+        bottomRename = BottomSheetBehavior.from(binding.bottomMenuRename.bottomMenu)
+        bottomActions.peekHeight = 0
+        bottomRename.peekHeight = 0
+        bottomActions.state = BottomSheetBehavior.STATE_COLLAPSED
+        bottomRename.state = BottomSheetBehavior.STATE_COLLAPSED
     }
 
     private fun setupItemLongClickListener() = with(binding) {
@@ -90,7 +127,7 @@ class ListFragment : Fragment() {
             buttonAddItem.visibility = View.GONE
             val selectedItem = it
 
-            bottomSheetBehaviorActions.state = BottomSheetBehavior.STATE_EXPANDED
+            bottomActions.state = BottomSheetBehavior.STATE_EXPANDED
             bottomSheetBackGround.visibility = View.VISIBLE
 
             bottomSheetBackGround.setOnClickListener {
@@ -105,8 +142,8 @@ class ListFragment : Fragment() {
 
             bottomMenuActions.buttonRename.setOnClickListener {
                 bottomSheetBackGround.visibility = View.GONE
-                bottomSheetBehaviorActions.state = BottomSheetBehavior.STATE_COLLAPSED
-                bottomSheetBehaviorRename.state = BottomSheetBehavior.STATE_EXPANDED
+                bottomActions.state = BottomSheetBehavior.STATE_COLLAPSED
+                bottomRename.state = BottomSheetBehavior.STATE_EXPANDED
                 bottomSheetBackGround.visibility = View.VISIBLE
                 bottomMenuRename.inputFileName.setText(selectedItem.text)
                 if (bottomMenuRename.inputFileName.text != null) {
@@ -145,12 +182,17 @@ class ListFragment : Fragment() {
 
     private fun hideBottomSheetMenus() = with(binding) {
         buttonAddItem.visibility = View.VISIBLE
-        bottomSheetBehaviorActions.state = BottomSheetBehavior.STATE_COLLAPSED
-        bottomSheetBehaviorRename.state = BottomSheetBehavior.STATE_COLLAPSED
+        bottomActions.state = BottomSheetBehavior.STATE_COLLAPSED
+        bottomRename.state = BottomSheetBehavior.STATE_COLLAPSED
         bottomSheetBackGround.visibility = View.GONE
     }
 
-    private fun setupClickListeners() = with(binding) {
+    private fun setupButtons() = with(binding) {
+
+        binding.buttonAuth.setOnClickListener {
+            startActivity(AuthActivity.newIntentOpenAuthActivity(requireContext()))
+        }
+
         buttonAddItem.setOnClickListener {
             findNavController().navigate(
                 ListFragmentDirections.actionListFragmentToDetailFragment()
@@ -234,6 +276,20 @@ class ListFragment : Fragment() {
         }
         val itemTouchHelper = ItemTouchHelper(callback)
         itemTouchHelper.attachToRecyclerView(rvShopList)
+    }
+
+    private fun showNetWorkConnectionDialog() {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(resources.getString(R.string.connection_error_title))
+            .setMessage(resources.getString(R.string.connection_error_message))
+            .setPositiveButton(resources.getString(R.string.OkText)) { _, _ ->
+                showSnackBar(resources.getString(R.string.show_cashed_todos_text))
+            }
+            .show()
+    }
+
+    private fun showSnackBar(message: String) {
+        Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
     }
 
     override fun onResume() {

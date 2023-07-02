@@ -29,4 +29,19 @@
     <string name="todo">Добавьте ToDo по кнопке ниже :)</string>
     <string name="icon">icon</string>
     <string name="cancel">Отмена</string>
+    <string name="auth_token_key">auth token jey</string>
+    <string name="id">Войти с Яндекс ID</string>
+    <string name="skip_auth">Продолжить без авторизации</string>
+    <string name="avatar">avatar</string>
+    <string name="notice">напоминание</string>
+    <string name="auth_token_table_name">auth_token_table_name</string>
+    <string name="connection_error_title">упс… похоже у тебя беда с интернетом</string>
+    <string name="ignore">игнорировать</string>
+    <string name="authorize">авторизоваться</string>
+    <string name="warning2">вы всегда сможете вернуться сюда и авторизоваться</string>
+    <string name="warning">предупреждение</string>
+    <string name="warning_content">неавторизованные юзеры не смогут синхронизировать свои ToDo по облаку</string>
+    <string name="successfully_synchronized">синхронизировано</string>
+    <string name="show_cashed_todos_text">я поищу закэшированные ToDo, но они могут быть неактуальными</string>
+    <string name="connection_error_message">я смогу синхронизировать твои заметки как только ты вновь подключишься к интернету</string>
 </resources>

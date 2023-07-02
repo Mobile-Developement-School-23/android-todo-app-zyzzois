@@ -1,4 +1,4 @@
-package com.example.todo.ui.screens
+package com.example.todo.ui.screens.detail
 
 import android.content.Context
 import android.os.Bundle
@@ -18,21 +18,20 @@ import com.example.domain.entity.TodoItemEntity
 import com.example.todo.R
 import com.example.todo.app.ToDoApp
 import com.example.todo.databinding.FragmentDetailBinding
-import com.example.todo.ui.viewmodels.DetailViewModel
-import com.example.todo.ui.viewmodels.ViewModelFactory
-import com.example.todo.util.Constants.BINDING_NULL_EXCEPTION_MESSAGE
-import com.example.todo.util.Constants.DEFAULT_ID
-import com.example.todo.util.Constants.MODE_ADD
-import com.example.todo.util.Constants.MODE_EDIT
-import com.example.todo.util.Constants.MODE_UNKNOWN
-import com.example.todo.util.Constants.PARAM_TODO_ITEM_ID_IS_ABSENT_EXCEPTION_MESSAGE
-import com.example.todo.util.Constants.PICKER_TAG
-import com.example.todo.util.Constants.TODO_DELETED
-import com.example.todo.util.Constants.UNKNOWN_SCREEN_MODE
-import com.example.todo.util.Converter
-import com.example.todo.util.dateFromLong
-import com.example.todo.util.showToast
-import com.example.todo.util.toStringDate
+import com.example.todo.ui.core.factories.ViewModelFactory
+import com.example.todo.ui.util.Constants.BINDING_NULL_EXCEPTION_MESSAGE
+import com.example.todo.ui.util.Constants.DEFAULT_ID
+import com.example.todo.ui.util.Constants.MODE_ADD
+import com.example.todo.ui.util.Constants.MODE_EDIT
+import com.example.todo.ui.util.Constants.MODE_UNKNOWN
+import com.example.todo.ui.util.Constants.PARAM_TODO_ITEM_ID_IS_ABSENT_EXCEPTION_MESSAGE
+import com.example.todo.ui.util.Constants.PICKER_TAG
+import com.example.todo.ui.util.Constants.TODO_DELETED
+import com.example.todo.ui.util.Constants.UNKNOWN_SCREEN_MODE
+import com.example.todo.ui.util.Converter
+import com.example.todo.ui.util.dateFromLong
+import com.example.todo.ui.util.showToast
+import com.example.todo.ui.util.toStringDate
 import com.google.android.material.datepicker.MaterialDatePicker
 import javax.inject.Inject
 
@@ -118,9 +117,11 @@ class DetailFragment : Fragment() {
     }
 
     private fun launchEditMode() = with(binding) {
-        buttonDelete.isClickable = true
-        buttonDelete.iconTint = ContextCompat.getColorStateList(requireContext(), R.color.red)
-        buttonDelete.setTextColor(ContextCompat.getColor(requireContext(), R.color.red))
+        buttonDelete.apply {
+            isClickable = true
+            iconTint = ContextCompat.getColorStateList(requireContext(), R.color.red)
+            setTextColor(ContextCompat.getColor(requireContext(), R.color.red))
+        }
 
         viewModel.getToDoItem(toDoItemEntityId)
         viewModel.itemEntity.observe(viewLifecycleOwner) {
@@ -151,19 +152,23 @@ class DetailFragment : Fragment() {
                 val picker = MaterialDatePicker.Builder.datePicker()
                     .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
                     .build()
-                picker.addOnPositiveButtonClickListener {
-                    tvDate.visibility = View.VISIBLE
-                    tvDate.text = dateFromLong(it).toStringDate()
-                    tempValueForDeadline = it
+
+                picker.apply {
+                    addOnPositiveButtonClickListener {
+                        tvDate.visibility = View.VISIBLE
+                        tvDate.text = dateFromLong(it).toStringDate()
+                        tempValueForDeadline = it
+                    }
+                    addOnCancelListener {
+                        switch1.isChecked = false
+                        tempValueForDeadline = TodoItemEntity.UNDEFINED_DATE
+                    }
+                    addOnNegativeButtonClickListener {
+                        switch1.isChecked = false
+                        tempValueForDeadline = TodoItemEntity.UNDEFINED_DATE
+                    }
                 }
-                picker.addOnCancelListener {
-                    switch1.isChecked = false
-                    tempValueForDeadline = TodoItemEntity.UNDEFINED_DATE
-                }
-                picker.addOnNegativeButtonClickListener {
-                    switch1.isChecked = false
-                    tempValueForDeadline = TodoItemEntity.UNDEFINED_DATE
-                }
+
                 picker.show(requireActivity().supportFragmentManager, PICKER_TAG)
 
             } else {

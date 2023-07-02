@@ -1,4 +1,4 @@
-package com.example.todo.ui.viewmodels
+package com.example.todo.ui.core.factories
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider

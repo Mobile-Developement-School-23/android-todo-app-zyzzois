@@ -1,0 +1,46 @@
+<resources>
+    <string name="app_name">ToDo</string>
+    <string name="list_item_text">buy something</string>
+    <string name="more_information_text">more</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="add_new_item_button">add new item button</string>
+    <string name="main_screen_title">My ToDo list</string>
+    <string name="completed_text">Completed — 0</string>
+    <string name="eye_button">Completed - 0</string>
+    <string name="cancel_button">cancel button</string>
+    <string name="save_button_text">SAVE</string>
+    <string name="hint_text">What need to do…</string>
+    <string name="importance_text">Priority</string>
+    <string name="hint_no">No</string>
+    <string name="do_before">Make up</string>
+    <string name="delete">Delete</string>
+    <string name="edit">Rename</string>
+    <string name="OkText">OK</string>
+    <string name="no_importance">No</string>
+    <string name="custom_bottom_menu_title">Rename</string>
+    <string name="low_importance">Low</string>
+    <string name="high_importance"><font color="#FF3B30">!! High</font></string>
+    <string name="default_date_text">June 2, 2021</string>
+    <string name="til_error">The text field cannot be empty!</string>
+    <string name="medium_priority">Medium</string>
+    <string name="low_priority">Low</string>
+    <string name="auth_token_table_name">auth_token_table_name</string>
+    <string name="high_priority"><font color="#FF3B30">!! High</font></string>
+    <string name="icon">icon</string>
+    <string name="cancel">Cancel</string>
+    <string name="auth_token_key">auth token jey</string>
+    <string name="id">Login via Yandex ID</string>
+    <string name="avatar">avatar</string>
+    <string name="todo">add todo :)</string>
+    <string name="skip_auth">Skip authorization</string>
+    <string name="connection_error_title">oops… it looks like you have a problem with the internet</string>
+    <string name="ignore">ignore</string>
+    <string name="warning">warning</string>
+    <string name="notice">notice</string>
+    <string name="warning2">you can always come back here and log in</string>
+    <string name="authorize">authorize</string>
+    <string name="warning_content">Unauthorized users will not be able to sync their ToDos to the cloud</string>
+    <string name="successfully_synchronized">synchronized</string>
+    <string name="show_cashed_todos_text">I have cached ToDos, but they may not be up to date</string>
+    <string name="connection_error_message">I can sync your ToDo`s as soon as you reconnect to the internet</string>
+</resources>
