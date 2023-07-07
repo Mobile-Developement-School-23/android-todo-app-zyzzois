@@ -20,8 +20,6 @@ class ListViewModel @Inject constructor(
     private val loadDataUseCase: LoadDataUseCase,
 ): ViewModel() {
 
-
-
     private val _requestResult = MutableLiveData<Result?>()
     val requestResult: LiveData<Result?>
         get() = _requestResult

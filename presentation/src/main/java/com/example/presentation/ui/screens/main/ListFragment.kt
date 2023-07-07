@@ -11,12 +11,14 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
+import com.example.domain.entity.TodoItemEntity
 import com.example.domain.entity.remote.Result
 import com.example.presentation.R
 import com.example.presentation.databinding.FragmentListBinding
 import com.example.presentation.di.PresentationComponentProvider
 import com.example.presentation.ui.core.factories.ViewModelFactory
 import com.example.presentation.ui.core.network.ConnectionListener
+import com.example.presentation.ui.screens.auth.AuthActivity
 import com.example.presentation.ui.screens.main.recycler.SwipeTodoItemCallback
 import com.example.presentation.ui.screens.main.recycler.ToDoListAdapter
 import com.example.presentation.ui.util.Constants.BINDING_NULL_EXCEPTION_MESSAGE
@@ -111,38 +113,28 @@ class ListFragment : Fragment() {
         listAdapter.onItemLongClickListener = {
             buttonAddItem.visibility = View.GONE
             val selectedItem = it
-
             bottomActions.state = BottomSheetBehavior.STATE_EXPANDED
             bottomSheetBackGround.visibility = View.VISIBLE
+            bottomSheetBackGround.setOnClickListener { hideBottomMenus() }
+            bottomMenuRename.buttonDeleteOnBottomMenu.setOnClickListener { hideBottomMenus() }
+            bottomMenuActions.buttonDelete.setOnClickListener { hideBottomMenus() }
+            bottomMenuActions.buttonRename.setOnClickListener { showRenameMenu(selectedItem) }
+            bottomMenuActions.buttonDelete.setOnClickListener { hideBottomMenus() }
+        }
+    }
 
-            bottomSheetBackGround.setOnClickListener {
+    private fun showRenameMenu(selectedItem: TodoItemEntity) = with(binding) {
+        bottomSheetBackGround.visibility = View.GONE
+        bottomActions.state = BottomSheetBehavior.STATE_COLLAPSED
+        bottomRename.state = BottomSheetBehavior.STATE_EXPANDED
+        bottomSheetBackGround.visibility = View.VISIBLE
+        bottomMenuRename.inputFileName.setText(selectedItem.text)
+        if (bottomMenuRename.inputFileName.text != null) {
+            bottomMenuRename.buttonSaveOnBottomMenu.setOnClickListener {
+                val newName = bottomMenuRename.inputFileName.text.toString()
+                viewModel.renameToDoItem(selectedItem, newName)
                 hideBottomMenus()
             }
-            bottomMenuRename.buttonDeleteOnBottomMenu.setOnClickListener {
-                hideBottomMenus()
-            }
-            bottomMenuActions.buttonDelete.setOnClickListener {
-                hideBottomMenus()
-            }
-
-            bottomMenuActions.buttonRename.setOnClickListener {
-                bottomSheetBackGround.visibility = View.GONE
-                bottomActions.state = BottomSheetBehavior.STATE_COLLAPSED
-                bottomRename.state = BottomSheetBehavior.STATE_EXPANDED
-                bottomSheetBackGround.visibility = View.VISIBLE
-                bottomMenuRename.inputFileName.setText(selectedItem.text)
-                if (bottomMenuRename.inputFileName.text != null) {
-                    bottomMenuRename.buttonSaveOnBottomMenu.setOnClickListener {
-                        val newName = bottomMenuRename.inputFileName.text.toString()
-                        viewModel.renameToDoItem(selectedItem, newName)
-                        hideBottomMenus()
-                    }
-                }
-            }
-            bottomMenuActions.buttonDelete.setOnClickListener {
-                hideBottomMenus()
-            }
-
         }
     }
 
@@ -183,13 +175,11 @@ class ListFragment : Fragment() {
         }
 
         buttonAuth.setOnClickListener {
-            startActivity(com.example.presentation.ui.screens.auth.AuthActivity.newIntentOpenAuthActivity(requireContext()))
+            startActivity(AuthActivity.newIntentOpenAuthActivity(requireContext()))
         }
 
         buttonAddItem.setOnClickListener {
-            findNavController().navigate(
-                ListFragmentDirections.actionListFragmentToDetailFragment()
-            )
+            findNavController().navigate(ListFragmentDirections.actionListFragmentToDetailFragment())
         }
         viewModel.completedNumber.observe(viewLifecycleOwner) {
             tvCompleted.text = String.format(COMPLETED, it)
@@ -218,10 +208,8 @@ class ListFragment : Fragment() {
             },
             applicationContext = requireActivity().baseContext
         )
-
         val itemTouchHelper = ItemTouchHelper(swipeCallback)
         itemTouchHelper.attachToRecyclerView(recyclerView)
-
     }
 
     private fun showNetWorkConnectionDialog() {
@@ -242,11 +230,6 @@ class ListFragment : Fragment() {
         super.onResume()
         viewModel.loadData()
         viewModel.updateList()
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 
 }
