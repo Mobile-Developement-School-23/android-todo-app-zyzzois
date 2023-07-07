@@ -92,13 +92,11 @@
 
         <TextView
             android:id="@+id/tvImportanceState"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:text="@string/hint_no"
-            android:textSize="16sp"
-            app:layout_constraintStart_toStartOf="@+id/tvImportanceTitle"
-            app:layout_constraintTop_toBottomOf="@+id/tvImportanceTitle" />
+            android:textSize="16sp" />
 
 
     </LinearLayout>

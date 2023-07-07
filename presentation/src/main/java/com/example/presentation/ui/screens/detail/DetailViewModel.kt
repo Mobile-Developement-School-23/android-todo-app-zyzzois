@@ -1,5 +1,6 @@
 package com.example.presentation.ui.screens.detail
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -20,6 +21,10 @@ class DetailViewModel @Inject constructor(
     private val deleteItemUseCase: DeleteItemUseCase,
     private val editItemUseCase: EditItemUseCase
 ): ViewModel() {
+
+    init {
+        Log.d("DETAIL_VIEW_MODEL", "init")
+    }
 
     private val _errorInputText = MutableLiveData<Boolean>()
     val errorInputText: LiveData<Boolean>
@@ -92,6 +97,11 @@ class DetailViewModel @Inject constructor(
 
     fun resetErrorInputText() {
         _errorInputText.value = false
+    }
+
+    override fun onCleared() {
+        Log.d("DETAIL_VIEW_MODEL", "onCleared")
+        super.onCleared()
     }
 
 }

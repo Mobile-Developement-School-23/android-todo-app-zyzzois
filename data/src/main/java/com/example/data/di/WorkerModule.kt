@@ -1,4 +1,4 @@
-package com.example.todo.di
+package com.example.data.di
 
 import com.example.data.workers.ChildWorkerFactory
 import com.example.data.workers.NetworkWorker

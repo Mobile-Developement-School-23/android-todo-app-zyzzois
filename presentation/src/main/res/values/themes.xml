@@ -19,7 +19,9 @@
         <item name="back_elevated">@color/back_light_elevated</item>
     </style>
 
-    <style name="Theme.ToDo" parent="Base.Theme.ToDo" />
+    <style name="Theme.ToDo" parent="Base.Theme.ToDo">
+        <item name="popupMenuBackground">@drawable/priority_menu_background</item>
+    </style>
 
     <style name="FloatingActionButtonStyle" parent="Widget.Design.FloatingActionButton">
         <item name="shapeAppearanceOverlay">

@@ -2,13 +2,12 @@ package com.example.presentation.ui.screens.detail
 
 import android.content.Context
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
 import androidx.core.content.ContextCompat
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -43,7 +42,8 @@ class DetailFragment : Fragment() {
     private var tempValueForDeadline = TodoItemEntity.UNDEFINED_DATE
 
     private val component by lazy {
-        (requireActivity().application as PresentationComponentProvider).providePresentationComponent().create()
+        (requireActivity().application as PresentationComponentProvider)
+            .providePresentationComponent().create()
     }
 
     @Inject
@@ -57,10 +57,6 @@ class DetailFragment : Fragment() {
     private val binding: FragmentDetailBinding
         get() = _binding ?: throw RuntimeException(BINDING_NULL_EXCEPTION_MESSAGE)
 
-    private val mainPopupMenu by lazy {
-        PopupMenu(context, binding.tvImportance)
-    }
-
     override fun onAttach(context: Context) {
         super.onAttach(context)
         component.inject(this)
@@ -72,7 +68,8 @@ class DetailFragment : Fragment() {
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentDetailBinding.inflate(inflater, container, false)
@@ -81,7 +78,6 @@ class DetailFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        addTextChangeListeners()
         launchRightMode()
         setupClickListeners()
         observeViewModel()
@@ -96,14 +92,16 @@ class DetailFragment : Fragment() {
 
     private fun parseParams() {
         val mode = args.mode
-        if (mode != MODE_EDIT && mode != MODE_ADD)
+        if (mode != MODE_EDIT && mode != MODE_ADD) {
             throw RuntimeException(UNKNOWN_SCREEN_MODE + mode)
+        }
+
         screenMode = mode
 
         if (screenMode == MODE_EDIT) {
-            if (args.todoItemId == DEFAULT_ID)
+            if (args.todoItemId == DEFAULT_ID) {
                 throw RuntimeException(PARAM_TODO_ITEM_ID_IS_ABSENT_EXCEPTION_MESSAGE)
-
+            }
             toDoItemEntityId = args.todoItemId
         }
     }
@@ -122,7 +120,12 @@ class DetailFragment : Fragment() {
             iconTint = ContextCompat.getColorStateList(requireContext(), R.color.red)
             setTextColor(ContextCompat.getColor(requireContext(), R.color.red))
         }
+        showEditingTodo()
+        setupSwitchForEditMode()
+        setupButtonsForEditMode()
+    }
 
+    private fun showEditingTodo() = with(binding) {
         viewModel.getToDoItem(toDoItemEntityId)
         viewModel.itemEntity.observe(viewLifecycleOwner) {
             if (it.deadline != TodoItemEntity.UNDEFINED_DATE) {
@@ -146,7 +149,29 @@ class DetailFragment : Fragment() {
                 }
             }
         }
+    }
 
+    private fun setupButtonsForEditMode() = with(binding) {
+        buttonSave.setOnClickListener {
+            viewModel.editToDoItem(
+                text = editText.text?.toString(),
+                importance = Converter.convertStringToImportance(tvImportanceState.text.toString()),
+                deadline = tempValueForDeadline
+            )
+
+            if (viewModel.errorInputText.value == false) {
+                tvDate.visibility = View.INVISIBLE
+                findNavController().popBackStack()
+            }
+        }
+        buttonDelete.setOnClickListener {
+            viewModel.deleteToDoItem(toDoItemEntityId)
+            findNavController().popBackStack()
+            showToast(TODO_DELETED)
+        }
+    }
+
+    private fun setupSwitchForEditMode() = with(binding) {
         switch1.setOnClickListener {
             if (switch1.isChecked) {
                 val picker = MaterialDatePicker.Builder.datePicker()
@@ -170,31 +195,10 @@ class DetailFragment : Fragment() {
                 }
 
                 picker.show(requireActivity().supportFragmentManager, PICKER_TAG)
-
             } else {
                 tempValueForDeadline = TodoItemEntity.UNDEFINED_DATE
                 tvDate.visibility = View.INVISIBLE
             }
-
-        }
-
-        buttonSave.setOnClickListener {
-            viewModel.editToDoItem(
-                text = editText.text?.toString(),
-                importance = Converter.convertStringToImportance(tvImportanceState.text.toString()),
-                deadline = tempValueForDeadline
-            )
-
-            if (viewModel.errorInputText.value == false) {
-                tvDate.visibility = View.INVISIBLE
-                findNavController().popBackStack()
-            }
-        }
-
-        buttonDelete.setOnClickListener {
-            viewModel.deleteToDoItem(toDoItemEntityId)
-            findNavController().popBackStack()
-            showToast(TODO_DELETED)
         }
     }
 
@@ -209,11 +213,10 @@ class DetailFragment : Fragment() {
                 tempValueForDeadline = it
             }
 
-            if (isChecked)
+            if (isChecked) {
                 picker.show(requireActivity().supportFragmentManager, PICKER_TAG)
-            else
+            } else
                 tvDate.visibility = View.INVISIBLE
-
         }
 
         buttonSave.setOnClickListener {
@@ -222,62 +225,42 @@ class DetailFragment : Fragment() {
                 importance = tvImportanceState.text.toString(),
                 deadline = tempValueForDeadline
             )
-            if (viewModel.errorInputText.value == false)
+            if (viewModel.errorInputText.value == false) {
                 findNavController().popBackStack()
+            }
         }
     }
 
     private fun setupClickListeners() = with(binding) {
-
-        with(mainPopupMenu) {
-            tvImportance.setOnClickListener {
-                menu.clear()
-                menuInflater.inflate(R.menu.importance_menu, menu)
-                with(binding.tvImportanceState) {
-                    setOnMenuItemClickListener { item ->
-                        if (item != null) {
-                            when (item.itemId) {
-                                R.id.lowImportance -> {
-                                    text = getString(R.string.low_importance)
-                                    setTextColor(requireContext().getColor(R.color.black))
-                                }
-                                R.id.highImportance -> {
-                                    text = getString(R.string.high_importance)
-                                    setTextColor(requireContext().getColor(R.color.red))
-                                }
-                                else -> {
-                                    text = getString(R.string.hint_no)
-                                    setTextColor(requireContext().getColor(R.color.medium_gray))
-                                }
-                            }
-                        }
-                        true
-                    }
+        val importanceMenu = PopupMenu(context, binding.tvImportance)
+        importanceMenu.inflate(R.menu.importance_menu)
+        tvImportance.setOnClickListener {
+            importanceMenu.show()
+        }
+        importanceMenu.setOnMenuItemClickListener {
+            when (it.itemId) {
+                R.id.lowImportance -> {
+                    tvImportanceState.text = getString(R.string.low_importance)
+                    tvImportanceState.setTextColor(ContextCompat.getColor(requireContext(), R.color.light_gray))
                 }
-                show()
+                R.id.highImportance -> {
+                    tvImportanceState.text = getString(R.string.high_importance)
+                    tvImportanceState.setTextColor(ContextCompat.getColor(requireContext(), R.color.red))
+                }
+                else -> {
+                    tvImportanceState.text = getString(R.string.hint_no)
+                    tvImportanceState.setTextColor(ContextCompat.getColor(requireContext(), R.color.light_gray))
+                }
             }
+            true
         }
 
         buttonCancel.setOnClickListener {
             findNavController().popBackStack()
         }
-    }
-
-    private fun addTextChangeListeners() {
-        binding.editText.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                viewModel.resetErrorInputText()
-            }
-
-            override fun afterTextChanged(s: Editable?) {}
-        })
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+        editText.addTextChangedListener {
+            viewModel.resetErrorInputText()
+        }
     }
 
 }
