@@ -1,12 +1,21 @@
 package com.example.data.database
 
 import androidx.room.*
+import kotlinx.coroutines.flow.Flow
+
+/**
+ * Интерфейс для взаимодействия с БД, тут описаны все основые запросы к БД и возвращаемый тип,
+ * соответствующий каждому запросу
+ */
 
 @Dao
 interface ToDoDao {
 
     @Query("SELECT * FROM todos")
-    suspend fun getToDoList(): List<TodoItemModelDb>
+    fun getToDoList(): Flow<List<TodoItemModelDb>>
+
+    @Query("SELECT * FROM todos")
+    suspend fun getToDoListNeFlow(): List<TodoItemModelDb>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addTodo(toDoItem: TodoItemModelDb)

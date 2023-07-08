@@ -1,6 +1,5 @@
 package com.example.presentation.ui.screens.detail
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -12,6 +11,7 @@ import com.example.domain.usecase.DeleteItemUseCase
 import com.example.domain.usecase.EditItemUseCase
 import com.example.domain.usecase.GetItemByIdUseCase
 import com.example.presentation.ui.util.Converter.convertStringToImportance
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -20,11 +20,7 @@ class DetailViewModel @Inject constructor(
     private val addNewItemUseCase: AddNewItemUseCase,
     private val deleteItemUseCase: DeleteItemUseCase,
     private val editItemUseCase: EditItemUseCase
-): ViewModel() {
-
-    init {
-        Log.d("DETAIL_VIEW_MODEL", "init")
-    }
+) : ViewModel() {
 
     private val _errorInputText = MutableLiveData<Boolean>()
     val errorInputText: LiveData<Boolean>
@@ -63,7 +59,7 @@ class DetailViewModel @Inject constructor(
         val fieldsValid = validateInput(content)
         if (fieldsValid) {
             _itemEntity.value?.let {
-                viewModelScope.launch {
+                viewModelScope.launch(Dispatchers.IO) {
                     val toDoItemEntity = it.copy(
                         text = content,
                         importance = importance,
@@ -77,7 +73,7 @@ class DetailViewModel @Inject constructor(
     }
 
     fun deleteToDoItem(itemId: Int) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             deleteItemUseCase(itemId)
         }
     }
@@ -98,10 +94,4 @@ class DetailViewModel @Inject constructor(
     fun resetErrorInputText() {
         _errorInputText.value = false
     }
-
-    override fun onCleared() {
-        Log.d("DETAIL_VIEW_MODEL", "onCleared")
-        super.onCleared()
-    }
-
 }

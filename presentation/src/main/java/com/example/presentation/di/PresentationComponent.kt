@@ -19,6 +19,4 @@ interface PresentationComponent {
     }
 }
 
-interface PresentationComponentProvider {
-    fun providePresentationComponent(): PresentationComponent.Factory
-}
+

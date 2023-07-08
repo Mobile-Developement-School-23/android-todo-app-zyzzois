@@ -12,3 +12,6 @@ fun Activity.showToast(message: String) {
     Toast1.makeText(this, message, Toast1.LENGTH_SHORT).show()
 }
 
+fun Fragment.color(color: Int) {
+    this.requireContext().getColor(color)
+}

@@ -37,5 +37,4 @@ class DtoDbMapper @Inject constructor() {
         }
         return res
     }
-
 }

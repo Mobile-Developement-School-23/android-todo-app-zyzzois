@@ -48,6 +48,5 @@ interface DataModule {
         @Provides
         fun provideRetrofitClient(interceptor: Interceptor): RetrofitClient =
             RetrofitClient(interceptor)
-
     }
 }

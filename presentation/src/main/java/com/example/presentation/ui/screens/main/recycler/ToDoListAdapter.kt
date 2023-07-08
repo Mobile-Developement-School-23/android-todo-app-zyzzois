@@ -11,8 +11,7 @@ import com.example.domain.entity.TodoItemEntity
 import com.example.presentation.R
 import com.example.presentation.databinding.ListItemBinding
 
-
-class ToDoListAdapter: ListAdapter<TodoItemEntity, ToDoListAdapter.ToDoItemViewHolder>(
+class ToDoListAdapter : ListAdapter<TodoItemEntity, ToDoListAdapter.ToDoItemViewHolder>(
     ToDoItemDiffCallBack
 ) {
 
@@ -21,7 +20,9 @@ class ToDoListAdapter: ListAdapter<TodoItemEntity, ToDoListAdapter.ToDoItemViewH
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ToDoItemViewHolder {
         val binding = ListItemBinding.inflate(
-            LayoutInflater.from(parent.context), parent, false
+            LayoutInflater.from(parent.context),
+            parent,
+            false
         )
         return ToDoItemViewHolder(binding)
     }
@@ -39,7 +40,6 @@ class ToDoListAdapter: ListAdapter<TodoItemEntity, ToDoListAdapter.ToDoItemViewH
             onItemClickListener?.invoke(toDoItem)
         }
 
-
         with(binding) {
             icon.setImageResource(toDoItem.importance.toResource())
             if (toDoItem.completed) {
@@ -56,12 +56,12 @@ class ToDoListAdapter: ListAdapter<TodoItemEntity, ToDoListAdapter.ToDoItemViewH
         }
     }
 
-    private fun Importance.toResource() = when(this) {
+    private fun Importance.toResource() = when (this) {
         Importance.Low -> R.drawable.ic_priority_low_24dp
         Importance.Important -> R.drawable.ic_priority_high_24dp
         else -> 0
     }
 
-    inner class ToDoItemViewHolder(val binding: ListItemBinding):
+    inner class ToDoItemViewHolder(val binding: ListItemBinding) :
         RecyclerView.ViewHolder(binding.root)
 }

@@ -5,7 +5,7 @@ import okhttp3.Interceptor
 import okhttp3.Response
 import javax.inject.Inject
 
-class Interceptor @Inject constructor(private val prefs: SharedPreferences): Interceptor {
+class Interceptor @Inject constructor(private val prefs: SharedPreferences) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val token = "OAuth " + prefs.getString(AUTH_TOKEN, DEFAULT_VALUE)
         val request = chain

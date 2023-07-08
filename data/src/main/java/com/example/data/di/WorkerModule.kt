@@ -13,5 +13,4 @@ interface WorkerModule {
     @IntoMap
     @WorkerKey(NetworkWorker::class)
     fun bindNetworkWorkerFactory(worker: NetworkWorker.Factory): ChildWorkerFactory
-
 }

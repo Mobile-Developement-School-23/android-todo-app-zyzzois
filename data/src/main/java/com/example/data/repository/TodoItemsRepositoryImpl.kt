@@ -13,6 +13,8 @@ import com.example.data.workers.NetworkWorker
 import com.example.domain.entity.TodoItemEntity
 import com.example.domain.entity.remote.Result
 import com.example.domain.repository.TodoItemsRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import java.net.UnknownHostException
 import javax.inject.Inject
 
@@ -23,7 +25,7 @@ class TodoItemsRepositoryImpl @Inject constructor(
     private val dbDtoMapper: DtoDbMapper,
     private val revisionPreference: RevisionPreference,
     private val application: Application
-): TodoItemsRepository {
+) : TodoItemsRepository {
 
     override suspend fun addNewItem(item: TodoItemEntity) {
         val dbModel = mapper.mapEntityToDbModel(item)
@@ -41,8 +43,21 @@ class TodoItemsRepositoryImpl @Inject constructor(
         updateServer()
     }
 
-    override suspend fun getItemsList() = toDoDao.getToDoList().map {
-        mapper.mapDbModelToEntity(it)
+    override fun getItemsList(): Flow<List<TodoItemEntity>> {
+        val list = toDoDao.getToDoList().map { listFromDb ->
+            listFromDb.map {
+                mapper.mapDbModelToEntity(it)
+            }
+        }
+        return list
+    }
+
+    override fun completedToDoCount(): Flow<Int> {
+        return toDoDao.getToDoList().map { list ->
+            list.count {
+                it.completed
+            }
+        }
     }
 
     override suspend fun enableBackGroundUpdates() {
@@ -74,7 +89,6 @@ class TodoItemsRepositoryImpl @Inject constructor(
                     }
                 }
             }
-
         } catch (e: UnknownHostException) {
             return Result.INTERNET_CONNECTION_ERROR
         } catch (e: Exception) {
@@ -89,7 +103,7 @@ class TodoItemsRepositoryImpl @Inject constructor(
     }
 
     private suspend fun updateServer() {
-        val dtoList = dbDtoMapper.mapListModelDbToListDto(toDoDao.getToDoList())
+        val dtoList = dbDtoMapper.mapListModelDbToListDto(toDoDao.getToDoListNeFlow())
         try {
             val currentRevision = revisionPreference.getRevision()
             val requestUpdate = apiService.api.updateToDoList(currentRevision, dtoList)
@@ -105,5 +119,4 @@ class TodoItemsRepositoryImpl @Inject constructor(
     private fun updateRevision(newRevision: Int) {
         revisionPreference.setRevision(newRevision)
     }
-
 }

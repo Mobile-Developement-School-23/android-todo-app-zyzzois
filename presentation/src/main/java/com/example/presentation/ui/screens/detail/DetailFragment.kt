@@ -92,16 +92,13 @@ class DetailFragment : Fragment() {
 
     private fun parseParams() {
         val mode = args.mode
-        if (mode != MODE_EDIT && mode != MODE_ADD) {
+        if (mode != MODE_EDIT && mode != MODE_ADD)
             throw RuntimeException(UNKNOWN_SCREEN_MODE + mode)
-        }
-
         screenMode = mode
 
         if (screenMode == MODE_EDIT) {
-            if (args.todoItemId == DEFAULT_ID) {
+            if (args.todoItemId == DEFAULT_ID)
                 throw RuntimeException(PARAM_TODO_ITEM_ID_IS_ABSENT_EXCEPTION_MESSAGE)
-            }
             toDoItemEntityId = args.todoItemId
         }
     }
@@ -115,11 +112,6 @@ class DetailFragment : Fragment() {
     }
 
     private fun launchEditMode() = with(binding) {
-        buttonDelete.apply {
-            isClickable = true
-            iconTint = ContextCompat.getColorStateList(requireContext(), R.color.red)
-            setTextColor(ContextCompat.getColor(requireContext(), R.color.red))
-        }
         showEditingTodo()
         setupSwitchForEditMode()
         setupButtonsForEditMode()
@@ -164,10 +156,15 @@ class DetailFragment : Fragment() {
                 findNavController().popBackStack()
             }
         }
-        buttonDelete.setOnClickListener {
-            viewModel.deleteToDoItem(toDoItemEntityId)
-            findNavController().popBackStack()
-            showToast(TODO_DELETED)
+        buttonDelete.apply {
+            isClickable = true
+            iconTint = ContextCompat.getColorStateList(requireContext(), R.color.red)
+            setTextColor(ContextCompat.getColor(requireContext(), R.color.red))
+            setOnClickListener {
+                viewModel.deleteToDoItem(toDoItemEntityId)
+                findNavController().popBackStack()
+                showToast(TODO_DELETED)
+            }
         }
     }
 
@@ -225,18 +222,15 @@ class DetailFragment : Fragment() {
                 importance = tvImportanceState.text.toString(),
                 deadline = tempValueForDeadline
             )
-            if (viewModel.errorInputText.value == false) {
+            if (viewModel.errorInputText.value == false)
                 findNavController().popBackStack()
-            }
         }
     }
 
     private fun setupClickListeners() = with(binding) {
         val importanceMenu = PopupMenu(context, binding.tvImportance)
         importanceMenu.inflate(R.menu.importance_menu)
-        tvImportance.setOnClickListener {
-            importanceMenu.show()
-        }
+        tvImportance.setOnClickListener { importanceMenu.show() }
         importanceMenu.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.lowImportance -> {
@@ -262,5 +256,4 @@ class DetailFragment : Fragment() {
             viewModel.resetErrorInputText()
         }
     }
-
 }

@@ -6,10 +6,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.domain.entity.TodoItemEntity
 import com.example.domain.entity.remote.Result
+import com.example.domain.usecase.CompletedToDoCountUseCase
 import com.example.domain.usecase.DeleteItemUseCase
 import com.example.domain.usecase.EditItemUseCase
 import com.example.domain.usecase.GetItemsListUseCase
 import com.example.domain.usecase.LoadDataUseCase
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -18,66 +20,36 @@ class ListViewModel @Inject constructor(
     private val deleteItemUseCase: DeleteItemUseCase,
     private val editItemUseCase: EditItemUseCase,
     private val loadDataUseCase: LoadDataUseCase,
-): ViewModel() {
+    private val completedCount: CompletedToDoCountUseCase
+) : ViewModel() {
 
     private val _requestResult = MutableLiveData<Result?>()
     val requestResult: LiveData<Result?>
         get() = _requestResult
 
-    private val _toDoList = MutableLiveData<List<TodoItemEntity>?>()
-    val toDoList: LiveData<List<TodoItemEntity>?>
-        get() = _toDoList
+    fun toDoList() = getToDoListUseCase()
+    fun completedToDoNumber() = completedCount()
 
-    private val _completedNumber = MutableLiveData<Int>()
-    val completedNumber: LiveData<Int>
-        get() = _completedNumber
-
-    fun updateList() {
-        viewModelScope.launch {
-            _toDoList.value = getToDoListUseCase()
-        }
+    init {
+        loadData()
     }
 
     fun loadData() {
         viewModelScope.launch {
             _requestResult.value = loadDataUseCase()
-            _toDoList.value = getToDoListUseCase()
         }
     }
 
     fun editToDoItem(item: TodoItemEntity, completed: Boolean) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             val toDoItemEntity = item.copy(completed = completed)
             editItemUseCase(toDoItemEntity)
-            updateList()
-        }
-    }
-
-    fun renameToDoItem(item: TodoItemEntity, newName: String) {
-        viewModelScope.launch {
-            val toDoItemEntity = item.copy(text = newName)
-            editItemUseCase(toDoItemEntity)
-            updateList()
         }
     }
 
     fun deleteToDoItem(todoItemId: Int) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             deleteItemUseCase(todoItemId)
         }
-        updateList()
-    }
-
-    fun updateCompletedNumber() {
-        var counter = 0
-        for (todo in _toDoList.value!!) {
-            if (todo.completed)
-                counter += 1
-        }
-        _completedNumber.value = counter
-    }
-
-    init {
-        loadData()
     }
 }
