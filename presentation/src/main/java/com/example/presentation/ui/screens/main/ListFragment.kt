@@ -12,13 +12,11 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.RecyclerView
 import com.example.domain.entity.remote.Result
 import com.example.presentation.R
 import com.example.presentation.databinding.FragmentListBinding
 import com.example.presentation.di.PresentationComponentProvider
 import com.example.presentation.ui.core.factories.ViewModelFactory
-import com.example.presentation.ui.core.network.ConnectionListener
 import com.example.presentation.ui.screens.auth.AuthActivity
 import com.example.presentation.ui.screens.main.recycler.SwipeTodoItemCallback
 import com.example.presentation.ui.screens.main.recycler.ToDoListAdapter
@@ -36,8 +34,6 @@ class ListFragment : Fragment() {
     private val component by lazy {
         (requireActivity().application as PresentationComponentProvider).providePresentationComponent().create()
     }
-
-    private val connectionListener by lazy { ConnectionListener(requireActivity().application) }
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
@@ -70,10 +66,33 @@ class ListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        hideListAndShowShimmer()
         observeViewModel()
         setupRecyclerView()
         setupButtons()
-        setupSwipeListener(binding.rcView)
+        setupSwipeToRefresh()
+    }
+
+    private fun setupSwipeToRefresh() {
+        binding.swipeToRefresh.setOnRefreshListener {
+            hideListAndShowShimmer()
+            viewModel.loadData()
+            binding.swipeToRefresh.isRefreshing = false
+            hideShimmerAndShowList()
+            showToast(resources.getString(R.string.successfully_synchronized))
+        }
+    }
+
+    private fun hideShimmerAndShowList() = with(binding) {
+        shimmerViewContainer.visibility = View.GONE
+        shimmerViewContainer.stopShimmer()
+        listContainer.visibility = View.VISIBLE
+    }
+
+    private fun hideListAndShowShimmer() = with(binding) {
+        listContainer.visibility = View.GONE
+        shimmerViewContainer.visibility = View.VISIBLE
+        shimmerViewContainer.startShimmer()
     }
 
     private fun observeViewModel() = with(viewModel) {
@@ -82,6 +101,7 @@ class ListFragment : Fragment() {
                 launch {
                     toDoList().collect {
                         listAdapter.submitList(it)
+                        hideShimmerAndShowList()
                     }
                 }
                 launch {
@@ -94,17 +114,14 @@ class ListFragment : Fragment() {
 
         requestResult.observe(viewLifecycleOwner) { result ->
             when (result) {
+                Result.AUTH_ERROR -> showNotAuthorizedDialog()
                 Result.INTERNET_CONNECTION_ERROR -> showNetWorkConnectionDialog()
                 else -> {}
             }
         }
-
-        connectionListener.observe(viewLifecycleOwner) { connected ->
-            if (connected) {
-                viewModel.loadData()
-            } else {
-                showSnackBar("вы не подключены к сети")
-            }
+        shouldShowNetworkError.observe(viewLifecycleOwner) { disconnected ->
+            if (disconnected)
+                showNetWorkConnectionDialog()
         }
     }
 
@@ -124,47 +141,35 @@ class ListFragment : Fragment() {
             adapter = listAdapter
         }
         setupItemClickListener()
-    }
-
-    private fun setupButtons() = with(binding) {
-        buttonSync.setOnClickListener {
-            viewModel.loadData()
-            if (viewModel.requestResult.value == Result.SUCCESS) {
-                showToast(requireContext().getString(R.string.successfully_synchronized))
-            }
-        }
-
-        buttonAuth.setOnClickListener {
-            startActivity(AuthActivity.newIntentOpenAuthActivity(requireContext()))
-        }
-
-        buttonAddItem.setOnClickListener {
-            findNavController().navigate(ListFragmentDirections.actionListFragmentToDetailFragment())
-        }
-
-        buttonVisibility.setOnClickListener {
-            if (isIcon1Visible) {
-                buttonVisibility.setImageResource(R.drawable.ic_invisible)
-            } else
-                buttonVisibility.setImageResource(R.drawable.ic_eye)
-            isIcon1Visible = !isIcon1Visible
-        }
-    }
-
-    private fun setupSwipeListener(recyclerView: RecyclerView) {
         val swipeCallback = SwipeTodoItemCallback(
             onSwipeLeft = { position ->
-                val item = listAdapter.currentList[position]
+                val item = listAdapter.getItem(position)
                 viewModel.deleteToDoItem(item.id)
             },
             onSwipeRight = { position ->
-                val item = listAdapter.currentList[position]
-                viewModel.editToDoItem(item, completed = !item.completed)
+               val item = listAdapter.getItem(position)
+                viewModel.editToDoItem(item)
             },
             applicationContext = requireActivity().baseContext
         )
         val itemTouchHelper = ItemTouchHelper(swipeCallback)
-        itemTouchHelper.attachToRecyclerView(recyclerView)
+        itemTouchHelper.attachToRecyclerView(binding.rcView)
+    }
+
+    private fun setupButtons() = with(binding) {
+        buttonAuth.setOnClickListener {
+            startActivity(AuthActivity.newIntentOpenAuthActivity(requireContext()))
+        }
+        buttonAddItem.setOnClickListener {
+            findNavController().navigate(ListFragmentDirections.actionListFragmentToDetailFragment())
+        }
+        buttonVisibility.setOnClickListener {
+            if (isIcon1Visible)
+                buttonVisibility.setImageResource(R.drawable.ic_invisible)
+            else
+                buttonVisibility.setImageResource(R.drawable.ic_eye)
+            isIcon1Visible = !isIcon1Visible
+        }
     }
 
     private fun showNetWorkConnectionDialog() {
@@ -174,6 +179,17 @@ class ListFragment : Fragment() {
             .setPositiveButton(resources.getString(R.string.OkText)) { _, _ ->
                 showSnackBar(resources.getString(R.string.show_cashed_todos_text))
             }
+            .show()
+    }
+
+    private fun showNotAuthorizedDialog() {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(resources.getString(R.string.warning))
+            .setMessage(resources.getString(R.string.warning_content))
+            .setPositiveButton(resources.getString(R.string.authorize)) { _, _ ->
+                startActivity(AuthActivity.newIntentOpenAuthActivity(requireContext()))
+            }
+            .setNeutralButton(resources.getString(R.string.ignore)) { _, _ -> }
             .show()
     }
 

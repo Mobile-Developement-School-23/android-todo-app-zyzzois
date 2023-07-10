@@ -37,4 +37,32 @@ class DtoDbMapper @Inject constructor() {
         }
         return res
     }
+
+    fun mapListDtoToListModelDb(listDto: List<ElementDto>): List<TodoItemModelDb> {
+        val res = listDto.map {
+            TodoItemModelDb(
+                id = it.id.toInt(),
+                text = it.text,
+                importance = it.importance,
+                deadline = it.deadline,
+                completed = it.done,
+                dateOfCreation = it.created_at,
+                dateOfChange = it.changed_at
+            )
+        }
+        return res
+    }
+
+    fun mapDbModelToDto(modelDb: TodoItemModelDb) = ElementDto(
+        id = modelDb.id.toString(),
+        text = modelDb.text,
+        importance = modelDb.importance,
+        deadline = modelDb.deadline,
+        done = modelDb.completed,
+        created_at = modelDb.dateOfCreation,
+        changed_at = modelDb.dateOfChange,
+        last_updated_by = "me"
+    )
+
+
 }

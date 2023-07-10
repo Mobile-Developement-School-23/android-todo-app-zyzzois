@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import android.net.ConnectivityManager
 import androidx.lifecycle.ViewModel
+import com.example.presentation.ui.core.network.ConnectionListener
 import com.example.presentation.ui.screens.auth.AuthViewModel
 import com.example.presentation.ui.screens.detail.DetailViewModel
 import com.example.presentation.ui.screens.main.ListViewModel
@@ -30,13 +31,21 @@ interface ViewModelModule {
     @ViewModelKey(AuthViewModel::class)
     fun bindAuthViewModel(viewModel: AuthViewModel): ViewModel
 
-
     companion object {
+
         @Provides
         @ApplicationScope
-        fun provideConnectivityManager(context: Application): ConnectivityManager {
-            return context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        fun provideConnectivityManager(application: Application): ConnectivityManager {
+            return application.getSystemService(Context.CONNECTIVITY_SERVICE)
+                    as ConnectivityManager
         }
+
+        @Provides
+        @ApplicationScope
+        fun provideConnectionListener(cm: ConnectivityManager): ConnectionListener {
+            return ConnectionListener(cm)
+        }
+
     }
 
 }

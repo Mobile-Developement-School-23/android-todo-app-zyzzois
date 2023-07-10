@@ -1,5 +1,6 @@
 package com.example.data.network
 
+import com.example.data.network.models.ElementDto
 import com.example.data.network.models.PatchToDoListDto
 import com.example.data.network.models.ToDoItemDto
 import com.example.data.network.models.ToDoListDto
@@ -21,7 +22,7 @@ interface ApiService {
     @POST("list")
     suspend fun addToDo(
         @Header("X-Last-Known-Revision") revision: Int,
-        @Body toDoItemDto: ToDoItemDto
+        @Body toDoItemDto: ElementDto
     ): Response<ToDoItemDto>
 
     @GET("list/{id}")

@@ -210,10 +210,8 @@ class DetailFragment : Fragment() {
                 tempValueForDeadline = it
             }
 
-            if (isChecked) {
-                picker.show(requireActivity().supportFragmentManager, PICKER_TAG)
-            } else
-                tvDate.visibility = View.INVISIBLE
+            if (isChecked) picker.show(requireActivity().supportFragmentManager, PICKER_TAG)
+            else tvDate.visibility = View.INVISIBLE
         }
 
         buttonSave.setOnClickListener {

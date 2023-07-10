@@ -45,18 +45,6 @@
                 android:focusable="true"
                 android:src="@drawable/ic_eye" />
 
-
-            <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/buttonSync"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end|bottom"
-                android:layout_marginEnd="104dp"
-                android:layout_marginBottom="20dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:src="@drawable/ic_sync" />
-
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/buttonAuth"
                 android:layout_width="wrap_content"
@@ -85,18 +73,33 @@
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.cardview.widget.CardView
+        android:id="@+id/list_container"
+        android:visibility="visible"
+        android:layout_marginTop="12dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:cardCornerRadius="10dp"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="10dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        android:layout_marginEnd="8dp">
+        android:layout_marginEnd="10dp">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rc_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+            <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+                android:id="@+id/swipeToRefresh"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rc_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+                </LinearLayout>
+
+            </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
 
     </androidx.cardview.widget.CardView>
 
@@ -116,5 +119,31 @@
         app:tint="@color/white"
         android:backgroundTint="@color/blue"
         android:contentDescription="@string/add_new_item_button" />
+
+    <com.facebook.shimmer.ShimmerFrameLayout
+        android:id="@+id/shimmer_view_container"
+        android:layout_width="match_parent"
+        android:visibility="gone"
+        android:layout_marginTop="12dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <include layout="@layout/shimmer_for_list"/>
+            <include layout="@layout/shimmer_for_list"/>
+            <include layout="@layout/shimmer_for_list"/>
+            <include layout="@layout/shimmer_for_list"/>
+            <include layout="@layout/shimmer_for_list"/>
+            <include layout="@layout/shimmer_for_list"/>
+            <include layout="@layout/shimmer_for_list"/>
+            <include layout="@layout/shimmer_for_list"/>
+            <include layout="@layout/shimmer_for_list"/>
+            <include layout="@layout/shimmer_for_list"/>
+        </LinearLayout>
+    </com.facebook.shimmer.ShimmerFrameLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

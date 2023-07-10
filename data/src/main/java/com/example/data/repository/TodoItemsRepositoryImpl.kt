@@ -1,13 +1,16 @@
 package com.example.data.repository
 
 import android.app.Application
+import android.util.Log
 import androidx.work.WorkManager
 import com.example.data.core.preferences.RevisionPreference
 import com.example.data.database.ToDoDao
+import com.example.data.database.TodoItemModelDb
 import com.example.data.mapper.DtoDbMapper
 import com.example.data.mapper.Mapper
 import com.example.data.network.RequestResult
 import com.example.data.network.RetrofitClient
+import com.example.data.network.models.ElementDto
 import com.example.data.network.result
 import com.example.data.workers.NetworkWorker
 import com.example.domain.entity.TodoItemEntity
@@ -97,6 +100,40 @@ class TodoItemsRepositoryImpl @Inject constructor(
         return Result.SUCCESS
     }
 
+    override suspend fun syncWithCloud(): Result {
+
+        val localList = toDoDao.getToDoListNeFlow()
+        Log.d("zyzz", "localList " + localList.toString())
+        val serverList = apiService.api.getToDoList().body()?.list
+        Log.d("zyzz", "serverList " + serverList.toString())
+
+        val synchronizedList = serverList?.let { mergeServerListWithLocalList(localList, it) }
+
+
+        if (synchronizedList != null) {
+            toDoDao.replaceAll(synchronizedList)
+        } else {
+            return Result.UNDEFINED_ERROR
+        }
+
+        return Result.UNDEFINED_ERROR
+    }
+
+    private fun mergeServerListWithLocalList(
+        localList: List<TodoItemModelDb>,
+        serverList: List<ElementDto>
+    ): List<TodoItemModelDb> {
+        val idItemMap = serverList.associateBy(ElementDto::id).toMutableMap()
+        localList.forEach { oldItem ->
+            val newItem = idItemMap[oldItem.id.toString()]
+            if (newItem != null && oldItem.dateOfChange > newItem.changed_at)
+                idItemMap[newItem.id] = dbDtoMapper.mapDbModelToDto(oldItem)
+        }
+        val list = idItemMap.values.toList()
+        Log.d("zyzz", "${dbDtoMapper.mapListDtoToListModelDb(list)}")
+        return dbDtoMapper.mapListDtoToListModelDb(list)
+    }
+
     override suspend fun deleteItem(itemId: Int) {
         toDoDao.deleteToDoItem(itemId)
         updateServer()
@@ -104,11 +141,12 @@ class TodoItemsRepositoryImpl @Inject constructor(
 
     private suspend fun updateServer() {
         val dtoList = dbDtoMapper.mapListModelDbToListDto(toDoDao.getToDoListNeFlow())
+        Log.d("zyzz", dtoList.list.toString())
         try {
             val currentRevision = revisionPreference.getRevision()
             val requestUpdate = apiService.api.updateToDoList(currentRevision, dtoList)
             requestUpdate.body()?.let {
-                toDoDao.updateList(dbDtoMapper.mapListDtoToListModelDb(it))
+                //toDoDao.replaceAll(dbDtoMapper.mapListDtoToListModelDb(it))
                 updateRevision(it.revision)
             }
         } catch (e: Exception) {

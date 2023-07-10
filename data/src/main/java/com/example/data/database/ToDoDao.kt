@@ -21,7 +21,13 @@ interface ToDoDao {
     suspend fun addTodo(toDoItem: TodoItemModelDb)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun updateList(toDoList: List<TodoItemModelDb>)
+    suspend fun insertList(toDoList: List<TodoItemModelDb>)
+
+    @Transaction
+    suspend fun replaceAll(toDoList: List<TodoItemModelDb>) {
+        clearTable()
+        insertList(toDoList)
+    }
 
     @Query("SELECT * FROM todos WHERE id=:itemId LIMIT 1")
     suspend fun getItemById(itemId: Int): TodoItemModelDb

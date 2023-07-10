@@ -11,6 +11,7 @@ interface TodoItemsRepository {
     suspend fun deleteItem(itemId: Int)
     suspend fun enableBackGroundUpdates()
     suspend fun loadData(): Result
+    suspend fun syncWithCloud(): Result
     fun getItemsList(): Flow<List<TodoItemEntity>>
     fun completedToDoCount(): Flow<Int>
 }
