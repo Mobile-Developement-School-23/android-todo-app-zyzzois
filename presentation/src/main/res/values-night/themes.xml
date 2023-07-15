@@ -27,4 +27,8 @@
         <item name="fontFamily">@font/vk_sans_display_bold</item>
     </style>
 
+    <style name="BottomSheetStyle.Dark" parent="ThemeOverlay.MaterialComponents.BottomSheetDialog">
+        <item name="android:windowBackground">@color/back_dark_secondary</item>
+    </style>
+
 </resources>

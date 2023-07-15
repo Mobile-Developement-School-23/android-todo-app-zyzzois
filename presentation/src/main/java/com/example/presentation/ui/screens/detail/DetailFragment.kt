@@ -5,9 +5,12 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Context.ALARM_SERVICE
 import android.os.Bundle
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.PopupMenu
 import androidx.compose.ui.platform.ComposeView
 import androidx.core.content.ContextCompat
@@ -39,6 +42,7 @@ import com.example.presentation.ui.util.getMillisFromHourAndMinutes
 import com.example.presentation.ui.util.showToast
 import com.example.presentation.ui.util.toStringDate
 import com.example.presentation.ui.util.toTextFormat
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
@@ -61,6 +65,9 @@ class DetailFragment : Fragment() {
     private val viewModel by lazy {
         ViewModelProvider(requireActivity(), viewModelFactory)[DetailViewModel::class.java]
     }
+
+    private lateinit var bottomSheetBehaviorImportance: BottomSheetBehavior<LinearLayout>
+    private val vibrator by lazy { requireContext().getSystemService(Context.VIBRATOR_SERVICE) as Vibrator }
 
     private var _binding: FragmentDetailBinding? = null
     private val binding: FragmentDetailBinding
@@ -100,10 +107,16 @@ class DetailFragment : Fragment() {
 //                DetailScreen(viewModel)
 //            }
 //        }
-
+        setupBottomSheet()
         launchRightMode()
         setupClickListeners()
         observeViewModel()
+    }
+
+    private fun setupBottomSheet() {
+        bottomSheetBehaviorImportance = BottomSheetBehavior.from(binding.bottomPriorityMenu.priorityMenu)
+        bottomSheetBehaviorImportance.peekHeight = 0
+        bottomSheetBehaviorImportance.state = BottomSheetBehavior.STATE_COLLAPSED
     }
 
     private fun observeViewModel() {
@@ -185,15 +198,18 @@ class DetailFragment : Fragment() {
             iconTint = ContextCompat.getColorStateList(requireContext(), R.color.color_light_red)
             setTextColor(ContextCompat.getColor(requireContext(), R.color.color_light_red))
             setOnClickListener {
+                vibrator.vibrate(VibrationEffect.createOneShot(60, VibrationEffect.DEFAULT_AMPLITUDE))
                 viewModel.deleteToDoItem(viewModel.toDoItemEntityId)
                 findNavController().popBackStack()
                 showToast(TODO_DELETED)
             }
+
         }
     }
 
     private fun setupSwitchForEditMode() = with(binding) {
         switch1.setOnClickListener {
+            vibrator.vibrate(VibrationEffect.createOneShot(60, VibrationEffect.DEFAULT_AMPLITUDE))
             if (switch1.isChecked) {
                 val picker = MaterialDatePicker.Builder.datePicker()
                     .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
@@ -295,24 +311,48 @@ class DetailFragment : Fragment() {
     private fun setupClickListeners() = with(binding) {
         val importanceMenu = PopupMenu(context, binding.tvImportance)
         importanceMenu.inflate(R.menu.importance_menu)
-        tvImportance.setOnClickListener { importanceMenu.show() }
-        importanceMenu.setOnMenuItemClickListener {
-            when (it.itemId) {
-                R.id.lowImportance -> {
-                    tvImportanceState.text = getString(R.string.low_importance)
-                    tvImportanceState.setTextColor(ContextCompat.getColor(requireContext(), R.color.light_gray))
-                }
-                R.id.highImportance -> {
-                    tvImportanceState.text = getString(R.string.high_importance)
-                    tvImportanceState.setTextColor(ContextCompat.getColor(requireContext(), R.color.color_light_red))
-                }
-                else -> {
-                    tvImportanceState.text = getString(R.string.hint_no)
-                    tvImportanceState.setTextColor(ContextCompat.getColor(requireContext(), R.color.light_gray))
-                }
+        tvImportance.setOnClickListener {
+//            importanceMenu.show()
+            bottomSheetBehaviorImportance.state = BottomSheetBehavior.STATE_EXPANDED
+            bottomSheetBackGround.visibility = View.VISIBLE
+
+            bottomSheetBackGround.setOnClickListener {
+                hideBottomSheetMenus()
             }
-            true
+
+            bottomPriorityMenu.basic.setOnClickListener {
+                tvImportanceState.text = getString(R.string.low_importance)
+                tvImportanceState.setTextColor(ContextCompat.getColor(requireContext(), R.color.blue))
+                hideBottomSheetMenus()
+            }
+            bottomPriorityMenu.low.setOnClickListener {
+                tvImportanceState.text = getString(R.string.hint_no)
+                tvImportanceState.setTextColor(ContextCompat.getColor(requireContext(), R.color.light_gray))
+                hideBottomSheetMenus()
+            }
+            bottomPriorityMenu.high.setOnClickListener {
+                tvImportanceState.text = getString(R.string.high_importance)
+                tvImportanceState.setTextColor(ContextCompat.getColor(requireContext(), R.color.color_light_red))
+                hideBottomSheetMenus()
+            }
         }
+//        importanceMenu.setOnMenuItemClickListener {
+//            when (it.itemId) {
+//                R.id.lowImportance -> {
+//                    tvImportanceState.text = getString(R.string.low_importance)
+//                    tvImportanceState.setTextColor(ContextCompat.getColor(requireContext(), R.color.light_gray))
+//                }
+//                R.id.highImportance -> {
+//                    tvImportanceState.text = getString(R.string.high_importance)
+//                    tvImportanceState.setTextColor(ContextCompat.getColor(requireContext(), R.color.color_light_red))
+//                }
+//                else -> {
+//                    tvImportanceState.text = getString(R.string.hint_no)
+//                    tvImportanceState.setTextColor(ContextCompat.getColor(requireContext(), R.color.light_gray))
+//                }
+//            }
+//            true
+//        }
 
         buttonCancel.setOnClickListener {
             findNavController().popBackStack()
@@ -321,4 +361,11 @@ class DetailFragment : Fragment() {
             viewModel.resetErrorInputText()
         }
     }
+
+    private fun hideBottomSheetMenus() {
+        bottomSheetBehaviorImportance.state = BottomSheetBehavior.STATE_COLLAPSED
+        binding.bottomSheetBackGround.visibility = View.GONE
+    }
+
+
 }

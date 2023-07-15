@@ -22,6 +22,7 @@ import com.example.presentation.ui.screens.main.recycler.SwipeTodoItemCallback
 import com.example.presentation.ui.screens.main.recycler.ToDoListAdapter
 import com.example.presentation.ui.util.Constants.BINDING_NULL_EXCEPTION_MESSAGE
 import com.example.presentation.ui.util.Constants.COMPLETED
+import com.example.presentation.ui.util.Constants.MODE_EDIT
 import com.example.presentation.ui.util.showToast
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
@@ -33,6 +34,8 @@ class ListFragment : Fragment() {
     private val component by lazy {
         (requireActivity().application as PresentationComponentProvider).providePresentationComponent().create()
     }
+
+
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
@@ -71,6 +74,8 @@ class ListFragment : Fragment() {
         setupButtons()
         setupSwipeToRefresh()
     }
+
+
 
     private fun setupSwipeToRefresh() {
         binding.swipeToRefresh.setOnRefreshListener {
@@ -126,11 +131,11 @@ class ListFragment : Fragment() {
 
     private fun setupItemClickListener() {
         listAdapter.onItemClickListener = {
-//            findNavController().navigate(
-//                ListFragmentDirections.actionListFragmentToDetailFragment()
-//                    .setTodoItemId(it.id)
-//                    .setMode(MODE_EDIT)
-//            )
+            findNavController().navigate(
+                ListFragmentDirections.actionListFragmentToDetailFragment()
+                    .setTodoItemId(it.id)
+                    .setMode(MODE_EDIT)
+            )
         }
     }
 
@@ -145,10 +150,11 @@ class ListFragment : Fragment() {
                 binding.swipeToRefresh.isRefreshing = false
                 val item = listAdapter.getItem(position)
                 viewModel.deleteToDoItem(item.id)
+                showSnackBar("Удалено")
             },
             onSwipeRight = { position ->
                 binding.swipeToRefresh.isRefreshing = false
-               val item = listAdapter.getItem(position)
+                val item = listAdapter.getItem(position)
                 viewModel.editToDoItem(item)
             },
             applicationContext = requireActivity().baseContext
