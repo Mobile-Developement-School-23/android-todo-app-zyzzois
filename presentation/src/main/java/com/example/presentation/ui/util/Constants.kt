@@ -18,6 +18,7 @@ object Constants {
     const val AUTH_TOKEN = "auth token"
     const val AUTH_SUCCESS = "Вы авторизованы"
     const val AUTH_FAILED = "Вы не авторизованы"
+    const val ALARM_CONTENT = "alarm_message"
 }
 
 object Converter {

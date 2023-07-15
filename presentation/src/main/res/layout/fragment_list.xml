@@ -65,6 +65,7 @@
                 android:fontFamily="@font/roboto_medium"
                 android:layout_marginStart="64dp"
                 android:layout_marginBottom="20dp"
+                app:fontFamily="@font/vk_sans_display_regular"
                 android:text="@string/completed_text"
                 app:layout_collapseMode="parallax" />
 
@@ -116,8 +117,8 @@
         android:layout_marginBottom="40dp"
         android:src="@drawable/ic_add"
         android:elevation="18dp"
-        app:tint="@color/white"
-        android:backgroundTint="@color/blue"
+        app:tint="@color/color_light_white"
+        android:backgroundTint="@color/color_light_blue"
         android:contentDescription="@string/add_new_item_button" />
 
     <com.facebook.shimmer.ShimmerFrameLayout

@@ -1,7 +1,10 @@
 package com.example.presentation.ui.screens.main.recycler
 
+import android.content.Context
+import android.content.res.Configuration
 import android.graphics.Paint
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
@@ -11,6 +14,8 @@ import com.example.domain.entity.Importance
 import com.example.domain.entity.TodoItemEntity
 import com.example.presentation.R
 import com.example.presentation.databinding.ListItemBinding
+import com.example.presentation.ui.util.dateFromLong
+import com.example.presentation.ui.util.toStringDate
 
 class ToDoListAdapter : ListAdapter<TodoItemEntity, ToDoListAdapter.ToDoItemViewHolder>(
     ToDoItemDiffCallBack
@@ -43,10 +48,18 @@ class ToDoListAdapter : ListAdapter<TodoItemEntity, ToDoListAdapter.ToDoItemView
 
         with(binding) {
             icon.setImageResource(toDoItem.importance.toResource())
+            val textColor: Int = if (isDarkThemeEnabled(context))
+                ContextCompat.getColor(context, R.color.color_light_gray)
+            else ContextCompat.getColor(context, R.color.light_gray)
+
             if (toDoItem.completed) {
                 checkbox.isChecked = true
-                tvContent.setTextColor(ContextCompat.getColor(context, R.color.light_gray))
+                tvContent.setTextColor(textColor)
                 tvContent.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG
+            }
+            if (toDoItem.deadline != TodoItemEntity.UNDEFINED_DATE) {
+                tvDeadline.visibility = View.VISIBLE
+                tvDeadline.text = dateFromLong(toDoItem.deadline).toStringDate()
             }
             when (toDoItem.importance) {
                 Importance.Important -> {
@@ -65,6 +78,11 @@ class ToDoListAdapter : ListAdapter<TodoItemEntity, ToDoListAdapter.ToDoItemView
         }
     }
 
+    private fun isDarkThemeEnabled(context: Context): Boolean {
+        val currentNightMode = context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+        return currentNightMode == Configuration.UI_MODE_NIGHT_YES
+    }
+
     private fun Importance.toResource() = when (this) {
         Importance.Low -> R.drawable.ic_priority_low_24dp
         Importance.Important -> R.drawable.ic_priority_high_24dp
@@ -74,6 +92,8 @@ class ToDoListAdapter : ListAdapter<TodoItemEntity, ToDoListAdapter.ToDoItemView
     public override fun getItem(position: Int): TodoItemEntity {
         return super.getItem(position)
     }
+
+
 
     inner class ToDoItemViewHolder(val binding: ListItemBinding) :
         RecyclerView.ViewHolder(binding.root)

@@ -1,11 +1,15 @@
 package com.example.presentation.ui.screens.detail
 
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Context.ALARM_SERVICE
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
+import androidx.compose.ui.platform.ComposeView
 import androidx.core.content.ContextCompat
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
@@ -13,10 +17,11 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.domain.entity.Importance
-import com.example.domain.entity.TodoItemEntity
+import com.example.domain.entity.TodoItemEntity.Companion.UNDEFINED_DATE
 import com.example.presentation.R
 import com.example.presentation.databinding.FragmentDetailBinding
 import com.example.presentation.di.PresentationComponentProvider
+import com.example.presentation.ui.core.AlarmReceiver
 import com.example.presentation.ui.core.factories.ViewModelFactory
 import com.example.presentation.ui.util.Constants.BINDING_NULL_EXCEPTION_MESSAGE
 import com.example.presentation.ui.util.Constants.DEFAULT_ID
@@ -29,17 +34,21 @@ import com.example.presentation.ui.util.Constants.TODO_DELETED
 import com.example.presentation.ui.util.Constants.UNKNOWN_SCREEN_MODE
 import com.example.presentation.ui.util.Converter
 import com.example.presentation.ui.util.dateFromLong
+import com.example.presentation.ui.util.getMillisAtMidnight
+import com.example.presentation.ui.util.getMillisFromHourAndMinutes
 import com.example.presentation.ui.util.showToast
 import com.example.presentation.ui.util.toStringDate
+import com.example.presentation.ui.util.toTextFormat
 import com.google.android.material.datepicker.MaterialDatePicker
+import com.google.android.material.timepicker.MaterialTimePicker
+import com.google.android.material.timepicker.TimeFormat
 import javax.inject.Inject
 
 class DetailFragment : Fragment() {
 
     private val args by navArgs<DetailFragmentArgs>()
-    private var screenMode: String = MODE_UNKNOWN
-    private var toDoItemEntityId: Int = TodoItemEntity.UNDEFINED_ID
-    private var tempValueForDeadline = TodoItemEntity.UNDEFINED_DATE
+    private var screenMode = MODE_UNKNOWN
+
 
     private val component by lazy {
         (requireActivity().application as PresentationComponentProvider)
@@ -67,17 +76,31 @@ class DetailFragment : Fragment() {
         parseParams()
     }
 
+    private lateinit var composeView: ComposeView
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+
+//        return ComposeView(requireContext()).also {
+//            composeView = it
+//        }
         _binding = FragmentDetailBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewModel.setScreenMode(args.mode)
+//        composeView.setContent {
+//            val state = viewModel.state.collectAsState()
+//            TodoTheme {
+//                DetailScreen(viewModel)
+//            }
+//        }
+
         launchRightMode()
         setupClickListeners()
         observeViewModel()
@@ -99,7 +122,7 @@ class DetailFragment : Fragment() {
         if (screenMode == MODE_EDIT) {
             if (args.todoItemId == DEFAULT_ID)
                 throw RuntimeException(PARAM_TODO_ITEM_ID_IS_ABSENT_EXCEPTION_MESSAGE)
-            toDoItemEntityId = args.todoItemId
+            viewModel.toDoItemEntityId = args.todoItemId
         }
     }
 
@@ -118,9 +141,9 @@ class DetailFragment : Fragment() {
     }
 
     private fun showEditingTodo() = with(binding) {
-        viewModel.getToDoItem(toDoItemEntityId)
+        viewModel.getToDoItem(viewModel.toDoItemEntityId)
         viewModel.itemEntity.observe(viewLifecycleOwner) {
-            if (it.deadline != TodoItemEntity.UNDEFINED_DATE) {
+            if (it.deadline != UNDEFINED_DATE) {
                 switch1.isChecked = true
                 tvDate.visibility = View.VISIBLE
                 tvDate.text = dateFromLong(it.deadline).toStringDate()
@@ -133,7 +156,7 @@ class DetailFragment : Fragment() {
                 }
                 Importance.Important -> {
                     tvImportanceState.text = getString(R.string.high_importance)
-                    tvImportanceState.setTextColor(requireContext().getColor(R.color.red))
+                    tvImportanceState.setTextColor(requireContext().getColor(R.color.color_light_red))
                 }
                 Importance.Basic -> {
                     tvImportanceState.text = getString(R.string.hint_no)
@@ -148,20 +171,21 @@ class DetailFragment : Fragment() {
             viewModel.editToDoItem(
                 text = editText.text?.toString(),
                 importance = Converter.convertStringToImportance(tvImportanceState.text.toString()),
-                deadline = tempValueForDeadline
+                deadline = viewModel.tempValueForDeadline
             )
 
             if (viewModel.errorInputText.value == false) {
                 tvDate.visibility = View.INVISIBLE
                 findNavController().popBackStack()
             }
+
         }
         buttonDelete.apply {
             isClickable = true
-            iconTint = ContextCompat.getColorStateList(requireContext(), R.color.red)
-            setTextColor(ContextCompat.getColor(requireContext(), R.color.red))
+            iconTint = ContextCompat.getColorStateList(requireContext(), R.color.color_light_red)
+            setTextColor(ContextCompat.getColor(requireContext(), R.color.color_light_red))
             setOnClickListener {
-                viewModel.deleteToDoItem(toDoItemEntityId)
+                viewModel.deleteToDoItem(viewModel.toDoItemEntityId)
                 findNavController().popBackStack()
                 showToast(TODO_DELETED)
             }
@@ -179,38 +203,40 @@ class DetailFragment : Fragment() {
                     addOnPositiveButtonClickListener {
                         tvDate.visibility = View.VISIBLE
                         tvDate.text = dateFromLong(it).toStringDate()
-                        tempValueForDeadline = it
+                        viewModel.tempValueForDeadline = it
                     }
                     addOnCancelListener {
                         switch1.isChecked = false
-                        tempValueForDeadline = TodoItemEntity.UNDEFINED_DATE
+                        viewModel.tempValueForDeadline = UNDEFINED_DATE
                     }
                     addOnNegativeButtonClickListener {
                         switch1.isChecked = false
-                        tempValueForDeadline = TodoItemEntity.UNDEFINED_DATE
+                        viewModel.tempValueForDeadline = UNDEFINED_DATE
                     }
                 }
 
                 picker.show(requireActivity().supportFragmentManager, PICKER_TAG)
             } else {
-                tempValueForDeadline = TodoItemEntity.UNDEFINED_DATE
+                viewModel.tempValueForDeadline = UNDEFINED_DATE
                 tvDate.visibility = View.INVISIBLE
             }
         }
     }
 
     private fun launchAddMode() = with(binding) {
-        switch1.setOnCheckedChangeListener { _, isChecked ->
+
+        switch1.setOnClickListener {
             val picker = MaterialDatePicker.Builder.datePicker()
-                .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
                 .build()
+
             picker.addOnPositiveButtonClickListener {
-                tvDate.visibility = View.VISIBLE
-                tvDate.text = dateFromLong(it).toStringDate()
-                tempValueForDeadline = it
+                showTimePicker(it.getMillisAtMidnight())
             }
 
-            if (isChecked) picker.show(requireActivity().supportFragmentManager, PICKER_TAG)
+            picker.addOnDismissListener { switch1.isChecked = false }
+            picker.addOnCancelListener { switch1.isChecked = false }
+
+            if (switch1.isChecked) picker.show(requireActivity().supportFragmentManager, PICKER_TAG)
             else tvDate.visibility = View.INVISIBLE
         }
 
@@ -218,10 +244,51 @@ class DetailFragment : Fragment() {
             viewModel.addToDoItem(
                 text = editText.text?.toString(),
                 importance = tvImportanceState.text.toString(),
-                deadline = tempValueForDeadline
+                deadline = viewModel.tempValueForDeadline
             )
+
             if (viewModel.errorInputText.value == false)
                 findNavController().popBackStack()
+        }
+    }
+
+    private fun scheduleAlarm(alarmTime: Long, content: String) {
+        val alarmManager = requireContext().applicationContext.getSystemService(ALARM_SERVICE) as AlarmManager
+
+        val receiverIntent = AlarmReceiver.newIntent(requireContext().applicationContext, content)
+
+        val pendingIntent = PendingIntent.getBroadcast(
+            requireContext().applicationContext,
+            100,
+            receiverIntent,
+            PendingIntent.FLAG_IMMUTABLE
+        )
+
+        alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmTime, pendingIntent)
+    }
+
+    private fun showTimePicker(date: Long) = with(binding) {
+        val timePicker = MaterialTimePicker.Builder()
+            .setTimeFormat(TimeFormat.CLOCK_24H).setHour(12).setMinute(10)
+            .setInputMode(MaterialTimePicker.INPUT_MODE_CLOCK)
+            .setTitleText(requireContext().getString(R.string.time_picker_title))
+            .build()
+        timePicker.show(requireActivity().supportFragmentManager, PICKER_TAG)
+        timePicker.addOnNegativeButtonClickListener {
+            tvDate.visibility = View.VISIBLE
+            tvDate.text = dateFromLong(date).toStringDate()
+            viewModel.tempValueForDeadline = date
+            switch1.isChecked = true
+            showToast("Выполнить до ${date.toTextFormat()}")
+        }
+        timePicker.addOnPositiveButtonClickListener {
+            switch1.isChecked = true
+            tvDate.visibility = View.VISIBLE
+            val exactTime = getMillisFromHourAndMinutes(timePicker.hour, timePicker.minute) + date
+            tvDate.text = dateFromLong(exactTime).toStringDate()
+            viewModel.tempValueForDeadline = exactTime
+            scheduleAlarm(exactTime, binding.editText.text.toString())
+            showToast("Выполнить до ${exactTime.toTextFormat()}")
         }
     }
 
@@ -237,7 +304,7 @@ class DetailFragment : Fragment() {
                 }
                 R.id.highImportance -> {
                     tvImportanceState.text = getString(R.string.high_importance)
-                    tvImportanceState.setTextColor(ContextCompat.getColor(requireContext(), R.color.red))
+                    tvImportanceState.setTextColor(ContextCompat.getColor(requireContext(), R.color.color_light_red))
                 }
                 else -> {
                     tvImportanceState.text = getString(R.string.hint_no)

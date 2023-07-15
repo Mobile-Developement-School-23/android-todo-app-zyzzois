@@ -8,12 +8,12 @@ plugins {
 
 android {
     namespace 'com.example.todo'
-    compileSdk 33
+    compileSdk 34
 
     defaultConfig {
         applicationId "com.example.todo"
         minSdk 27
-        targetSdk 33
+        targetSdk 34
         versionCode 1
         versionName "1.0"
         manifestPlaceholders = [YANDEX_CLIENT_ID:"72f7e46d0dbc4bb5840f682a93bb6051"]

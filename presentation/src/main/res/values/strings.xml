@@ -43,4 +43,6 @@
     <string name="successfully_synchronized">синхронизировано</string>
     <string name="show_cashed_todos_text">я поищу закэшированные ToDo, но они могут быть неактуальными</string>
     <string name="connection_error_message">я смогу синхронизировать твои заметки как только ты вновь подключишься к интернету</string>
+
+    <string name="time_picker_title">Точное время</string>
 </resources>

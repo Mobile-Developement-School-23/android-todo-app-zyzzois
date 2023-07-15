@@ -6,12 +6,18 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.domain.entity.Importance
 import com.example.domain.entity.TodoItemEntity
+import com.example.domain.entity.TodoItemEntity.Companion.UNDEFINED_DATE
+import com.example.domain.entity.TodoItemEntity.Companion.UNDEFINED_ID
 import com.example.domain.usecase.AddNewItemUseCase
 import com.example.domain.usecase.DeleteItemUseCase
 import com.example.domain.usecase.EditItemUseCase
 import com.example.domain.usecase.GetItemByIdUseCase
+import com.example.presentation.ui.screens.detail.models.State
+import com.example.presentation.ui.util.Constants.MODE_ADD
 import com.example.presentation.ui.util.Converter.convertStringToImportance
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -21,6 +27,16 @@ class DetailViewModel @Inject constructor(
     private val deleteItemUseCase: DeleteItemUseCase,
     private val editItemUseCase: EditItemUseCase
 ) : ViewModel() {
+    private var isEditing = false
+
+    var toDoItemEntityId = UNDEFINED_ID
+    var tempValueForDeadline = UNDEFINED_DATE
+
+//    private val _state = MutableLiveData<State>()
+//    val state: LiveData<State>
+//        get() = _state
+
+
 
     private val _errorInputText = MutableLiveData<Boolean>()
     val errorInputText: LiveData<Boolean>
@@ -30,9 +46,13 @@ class DetailViewModel @Inject constructor(
     val itemEntity: LiveData<TodoItemEntity>
         get() = _itemEntity
 
+    private val _state = MutableStateFlow(State())
+    val state = _state.asStateFlow()
+
     fun getToDoItem(itemId: Int) {
         viewModelScope.launch {
             val item = getItemByIdUseCase(itemId)
+            //_state.value = State(itemEntity = item)
             _itemEntity.value = item
         }
     }
@@ -85,6 +105,7 @@ class DetailViewModel @Inject constructor(
     private fun validateInput(name: String): Boolean {
         var result = true
         if (name.isBlank()) {
+            //_state.value = State(isError = true)
             _errorInputText.value = true
             result = false
         }
@@ -92,6 +113,11 @@ class DetailViewModel @Inject constructor(
     }
 
     fun resetErrorInputText() {
+        //_state.value = State(isError = false)
         _errorInputText.value = false
+    }
+
+    fun setScreenMode(screenMode: String) {
+        isEditing = screenMode != MODE_ADD
     }
 }

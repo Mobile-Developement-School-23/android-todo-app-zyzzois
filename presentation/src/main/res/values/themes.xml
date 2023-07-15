@@ -37,12 +37,12 @@
     <style name="collapsedTitleStyle" parent="Widget.Material3.CollapsingToolbar">
         <item name="android:textSize">20sp</item>
         <item name="android:textColor">@color/black</item>
-        <item name="fontFamily">@font/roboto_medium</item>
+        <item name="fontFamily">@font/vk_sans_display_bold</item>
     </style>
     <style name="expandedTitleStyle" parent="Widget.Material3.CollapsingToolbar">
-        <item name="android:textSize">32sp</item>
+        <item name="android:textSize">36sp</item>
         <item name="android:textColor">@color/black</item>
-        <item name="fontFamily">@font/roboto_medium</item>
+        <item name="fontFamily">@font/vk_sans_display_bold</item>
     </style>
 
     <style name="MyTextInputLayoutStyle" parent="Widget.MaterialComponents.TextInputLayout.FilledBox">
@@ -63,5 +63,11 @@
     <style name="AppTheme" parent="Theme.MaterialComponents.Light">
 
     </style>
+
+
+     <style name="iconInfoStyle" >
+         <item name="tint">@color/back_dark_secondary</item>
+     </style>
+
 
 </resources>

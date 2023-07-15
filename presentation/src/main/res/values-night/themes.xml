@@ -18,4 +18,13 @@
         <item name="back_secondary">@color/back_dark_secondary</item>
         <item name="back_elevated">@color/back_dark_elevated</item>
     </style>
+
+    <style name="iconInfoStyle" >
+        <item name="tint">@color/color_light_white</item>
+    </style>
+
+    <style name="MainTitleFontStyle">
+        <item name="fontFamily">@font/vk_sans_display_bold</item>
+    </style>
+
 </resources>

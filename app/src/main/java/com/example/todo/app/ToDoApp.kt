@@ -18,6 +18,17 @@ class ToDoApp: Application(), Configuration.Provider, PresentationComponentProvi
     }
 
     override fun onCreate() {
+//        val alarmManager = this.getSystemService(ALARM_SERVICE) as AlarmManager
+//        val calendar = Calendar.getInstance()
+//        calendar.add(Calendar.SECOND, 5)
+//        val intent = AlarmReceiver.newIntent(this)
+//        val pendingIntent = PendingIntent.getBroadcast(
+//            this,
+//            100,
+//            intent,
+//            PendingIntent.FLAG_IMMUTABLE
+//        )
+//        alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent)
         component.inject(this)
         super.onCreate()
     }
