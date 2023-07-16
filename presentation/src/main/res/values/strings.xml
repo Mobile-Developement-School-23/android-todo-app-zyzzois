@@ -17,8 +17,10 @@
     <string name="edit">Переименовать</string>
     <string name="OkText">Ок</string>
     <string name="no_importance">Нет</string>
+    <string name="theme">Тема</string>
     <string name="custom_bottom_menu_title">Переименовать</string>
     <string name="low_importance">Низкий</string>
+    <string name="auth">Авторизация</string>
     <string name="high_importance"><font color="#FF3B30">!! Высокий</font></string>
     <string name="default_date_text">2 июня 2021</string>
     <string name="til_error">Поле текста не может быть пустым!</string>
@@ -45,4 +47,9 @@
     <string name="connection_error_message">я смогу синхронизировать твои заметки как только ты вновь подключишься к интернету</string>
 
     <string name="time_picker_title">Точное время</string>
+    <string name="system_theme_text">системная тема</string>
+    <string name="dark_theme_text">темная тема</string>
+    <string name="light_theme_text">светлая тема</string>
+    <string name="apply_text">Применить</string>
+    <string name="todo_deleted">Дело удалено</string>
 </resources>

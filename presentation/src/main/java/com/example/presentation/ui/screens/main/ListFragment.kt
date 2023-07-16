@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.PopupMenu
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
@@ -20,11 +21,14 @@ import com.example.presentation.ui.core.factories.ViewModelFactory
 import com.example.presentation.ui.screens.auth.AuthActivity
 import com.example.presentation.ui.screens.main.recycler.SwipeTodoItemCallback
 import com.example.presentation.ui.screens.main.recycler.ToDoListAdapter
+import com.example.presentation.ui.screens.main.snackbar.TimerSnackBar
+import com.example.presentation.ui.screens.main.snackbar.TimerSnackBar.Companion.setAction
 import com.example.presentation.ui.util.Constants.BINDING_NULL_EXCEPTION_MESSAGE
 import com.example.presentation.ui.util.Constants.COMPLETED
 import com.example.presentation.ui.util.Constants.MODE_EDIT
 import com.example.presentation.ui.util.showToast
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -150,7 +154,15 @@ class ListFragment : Fragment() {
                 binding.swipeToRefresh.isRefreshing = false
                 val item = listAdapter.getItem(position)
                 viewModel.deleteToDoItem(item.id)
-                showSnackBar("Удалено")
+                val view = view?.findViewById<View>(R.id.coordinator)
+                if (view != null) {
+                    TimerSnackBar.make(view).apply {
+                        animationMode = BaseTransientBottomBar.ANIMATION_MODE_SLIDE
+                        duration = 4700
+                        setAction { viewModel.addToDoItem(item) }
+                        show()
+                    }
+                }
             },
             onSwipeRight = { position ->
                 binding.swipeToRefresh.isRefreshing = false
@@ -164,8 +176,19 @@ class ListFragment : Fragment() {
     }
 
     private fun setupButtons() = with(binding) {
-        buttonAuth.setOnClickListener {
-            startActivity(AuthActivity.newIntentOpenAuthActivity(requireContext()))
+        val settingsMenu = PopupMenu(context, binding.buttonSettings)
+        settingsMenu.inflate(R.menu.settings_menu)
+        buttonSettings.setOnClickListener {
+            settingsMenu.show()
+            settingsMenu.setOnMenuItemClickListener {
+                when (it.itemId) {
+                    R.id.itemAuth ->
+                        startActivity(AuthActivity.newIntentOpenAuthActivity(requireContext()))
+                    R.id.itemTheme ->
+                        findNavController().navigate(ListFragmentDirections.actionListFragmentToSettingsFragment())
+                }
+                true
+            }
         }
         buttonAddItem.setOnClickListener {
             findNavController().navigate(ListFragmentDirections.actionListFragmentToDetailFragment())

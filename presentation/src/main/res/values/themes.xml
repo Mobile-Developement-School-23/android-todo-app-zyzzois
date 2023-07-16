@@ -64,6 +64,14 @@
 
     </style>
 
+    <style name="TextAppearance.Regular" parent="TextAppearance.AppCompat">
+        <item name="android:fontFamily">@font/vk_sans_display_medium</item>
+    </style>
+
+    <style name="TextAppearance.Body" parent="TextAppearance.Regular">
+        <item name="android:textSize">16sp</item>
+        <item name="android:lineSpacingExtra">4sp</item>
+    </style>
 
      <style name="iconInfoStyle" >
          <item name="tint">@color/back_dark_secondary</item>

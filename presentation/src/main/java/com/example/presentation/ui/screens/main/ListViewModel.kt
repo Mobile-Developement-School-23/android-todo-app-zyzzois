@@ -13,12 +13,14 @@ import com.example.domain.usecase.GetItemsListUseCase
 import com.example.domain.usecase.LoadDataUseCase
 import com.example.domain.usecase.SyncWithCloudUseCase
 import com.example.presentation.ui.core.network.ConnectionListener
+import com.example.presentation.ui.util.Converter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class ListViewModel @Inject constructor(
     private val getToDoListUseCase: GetItemsListUseCase,
+    private val addTodoItemUseCase: EditItemUseCase,
     private val deleteItemUseCase: DeleteItemUseCase,
     private val editItemUseCase: EditItemUseCase,
     private val loadDataUseCase: LoadDataUseCase,
@@ -73,6 +75,12 @@ class ListViewModel @Inject constructor(
             val isDone= !item.completed
             val toDoItemEntity = item.copy(completed = isDone)
             editItemUseCase(toDoItemEntity)
+        }
+    }
+
+    fun addToDoItem(todo: TodoItemEntity) {
+        viewModelScope.launch {
+            addTodoItemUseCase(todo)
         }
     }
 
