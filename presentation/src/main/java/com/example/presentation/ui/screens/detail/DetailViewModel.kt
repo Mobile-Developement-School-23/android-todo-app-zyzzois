@@ -12,7 +12,6 @@ import com.example.domain.usecase.AddNewItemUseCase
 import com.example.domain.usecase.DeleteItemUseCase
 import com.example.domain.usecase.EditItemUseCase
 import com.example.domain.usecase.GetItemByIdUseCase
-import com.example.presentation.ui.screens.detail.models.State
 import com.example.presentation.ui.util.Constants.MODE_ADD
 import com.example.presentation.ui.util.Converter.convertStringToImportance
 import kotlinx.coroutines.Dispatchers
@@ -29,14 +28,9 @@ class DetailViewModel @Inject constructor(
 ) : ViewModel() {
     private var isEditing = false
 
+
     var toDoItemEntityId = UNDEFINED_ID
     var tempValueForDeadline = UNDEFINED_DATE
-
-//    private val _state = MutableLiveData<State>()
-//    val state: LiveData<State>
-//        get() = _state
-
-
 
     private val _errorInputText = MutableLiveData<Boolean>()
     val errorInputText: LiveData<Boolean>
@@ -45,9 +39,6 @@ class DetailViewModel @Inject constructor(
     private val _itemEntity = MutableLiveData<TodoItemEntity>()
     val itemEntity: LiveData<TodoItemEntity>
         get() = _itemEntity
-
-    private val _state = MutableStateFlow(State())
-    val state = _state.asStateFlow()
 
     fun getToDoItem(itemId: Int) {
         viewModelScope.launch {
@@ -112,12 +103,11 @@ class DetailViewModel @Inject constructor(
         return result
     }
 
+
     fun resetErrorInputText() {
         //_state.value = State(isError = false)
         _errorInputText.value = false
     }
 
-    fun setScreenMode(screenMode: String) {
-        isEditing = screenMode != MODE_ADD
-    }
+
 }

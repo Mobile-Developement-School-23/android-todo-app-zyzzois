@@ -176,6 +176,7 @@ class ListFragment : Fragment() {
     }
 
     private fun setupButtons() = with(binding) {
+
         val settingsMenu = PopupMenu(context, binding.buttonSettings)
         settingsMenu.inflate(R.menu.settings_menu)
         buttonSettings.setOnClickListener {

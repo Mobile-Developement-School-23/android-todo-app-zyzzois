@@ -81,4 +81,6 @@
     <style name="BottomSheetStyle.Dark" parent="ThemeOverlay.MaterialComponents.BottomSheetDialog">
         <item name="android:windowBackground">@color/color_light_white</item>
     </style>
+
+
 </resources>

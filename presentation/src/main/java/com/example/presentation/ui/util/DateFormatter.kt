@@ -8,6 +8,7 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.Calendar
+import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 
@@ -42,4 +43,30 @@ fun Long.getMillisAtMidnight(): Long {
     calendar.set(Calendar.SECOND, 0)
     calendar.set(Calendar.MILLISECOND, 0)
     return calendar.timeInMillis
+}
+
+fun convertLongDeathlineToString(TimeinMilliSeccond :Long) =  SimpleDateFormat("dd MMMM yyyy").format(
+    Date(TimeinMilliSeccond)
+)
+
+fun convertMinutesToLong( TimeinMilliSeccond:Long,hour:Int,min:Int):Long{
+    val year = SimpleDateFormat("yyyy").format(Date(TimeinMilliSeccond))
+    val day = SimpleDateFormat("dd").format(Date(TimeinMilliSeccond))
+    val mount = SimpleDateFormat("MM").format(Date(TimeinMilliSeccond))
+
+    val date = SimpleDateFormat("yyyy MM dd hh mm").parse("$year $mount $day $hour $min")
+    return date.time
+}
+
+fun convertIntTimeToString(hour: Int,min: Int): String {
+    var ans = "00:00"
+    if(hour>10){
+        if(min>10) ans = "$hour:$min"
+        else ans = "$hour:0$min"
+    }
+    else{
+        if(min>10)ans = "0$hour:$min"
+        else "0$hour:0$min"
+    }
+    return ans
 }

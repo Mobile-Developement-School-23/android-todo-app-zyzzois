@@ -45,12 +45,15 @@ android {
 dependencies {
     implementation project(path: ':domain')
 
+    androidTestImplementation 'androidx.compose.ui:ui-test-junit4'
+    debugImplementation 'androidx.compose.ui:ui-test-manifest'
     implementation "androidx.compose.compiler:compiler:1.4.8"
     implementation "androidx.compose.foundation:foundation:1.6.0-alpha01"
     implementation "androidx.compose.material:material:1.6.0-alpha01"
     implementation "androidx.compose.runtime:runtime:1.6.0-alpha01"
     implementation "androidx.compose.runtime:runtime-livedata:1.4.3"
     implementation "androidx.compose.ui:ui:1.6.0-alpha01"
+    implementation 'androidx.compose.ui:ui-tooling:1.4.3'
     implementation "androidx.compose.material3:material3:1.2.0-alpha03"
 
     implementation 'androidx.appcompat:appcompat:1.6.1'
@@ -97,4 +100,8 @@ dependencies {
     implementation 'it.xabaras.android:recyclerview-swipedecorator:1.4'
 
     implementation 'com.facebook.shimmer:shimmer:0.5.0'
+
+    implementation "com.maxkeppeler.sheets-compose-dialogs:core:1.2.0"
+    implementation "com.maxkeppeler.sheets-compose-dialogs:calendar:1.2.0"
+    implementation "com.maxkeppeler.sheets-compose-dialogs:clock:1.2.0"
 }
